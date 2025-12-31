@@ -1,259 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EvanBlokEnder</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvanBlokEnder</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            background: radial-gradient(circle at top, #0a0a0f, #000);
-            color: #e3e3e3;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow-x: hidden;
-        }
+    body {
+        font-family: 'Arial', sans-serif;
+        background: #111;
+        color: #eee;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
 
-        /* Liquid Glass Effect */
-        .glass {
-            position: relative;
-            background: rgba(255,255,255,.08);
-            border: 2px solid transparent;
-            box-shadow: 0 0 0 2px rgba(255,255,255,.6), 0 16px 32px rgba(0,0,0,.12);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 20px;
-        }
+    header {
+        background: #222;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
 
-        .glass::before,
-        .glass::after{
-            content:"";
-            position:absolute;
-            width:40%;
-            height:10px;
-            background:#fff;
-            border-radius:10px;
-            opacity:0.15;
-        }
-        .glass::after{transform:rotate(90deg)}
+    header h1 {
+        font-size: 26px;
+        color: #4fc3f7;
+    }
 
-        /* Header */
+    nav {
+        flex: 1 1 100%;
+        margin-top: 10px;
+    }
+
+    nav ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    nav ul li a {
+        text-decoration: none;
+        color: #eee;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    nav ul li a:hover {
+        background: #4fc3f7;
+        color: #111;
+    }
+
+    .button {
+        display: inline-block;
+        background: #4fc3f7;
+        color: #111;
+        padding: 10px 18px;
+        border-radius: 6px;
+        text-decoration: none;
+        margin-top: 10px;
+        transition: background 0.2s, transform 0.2s;
+    }
+
+    .button:hover {
+        background: #35a0d4;
+        transform: translateY(-2px);
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .card {
+        background: #222;
+        padding: 20px;
+        border-radius: 12px;
+        transition: transform 0.2s, background 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        background: #333;
+    }
+
+    footer {
+        background: #222;
+        text-align: center;
+        padding: 20px;
+        font-size: 14px;
+        opacity: 0.8;
+        margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
         header {
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            animation: fadeIn 1.5s ease;
+            justify-content: center;
+            text-align: center;
         }
 
-        header h1 {
-            font-size: 28px;
-            font-weight: bold;
-            background: linear-gradient(90deg, #5ab2ff, #9df7ff);
-            -webkit-background-clip: text;
-            color: transparent;
-            animation: glow 5s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 5px #5ab2ff; }
-            to { text-shadow: 0 0 20px #9df7ff; }
+        nav {
+            margin-top: 15px;
         }
 
         nav ul {
-            list-style: none;
-            display: flex;
-            gap: 15px;
-        }
-
-        nav ul li a {
-            text-decoration: none;
-            color: #d8ecff;
-            font-weight: bold;
-            transition: color 0.3s ease, transform 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            color: #7ed2ff;
-            transform: translateY(-3px);
-        }
-
-        /* Buttons */
-        .button {
-            display: inline-block;
-            padding: 10px 22px;
-            margin-top: 20px;
-            background: linear-gradient(135deg, #004e92, #000428);
-            color: #fff;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .button:hover {
-            transform: translateY(-4px) scale(1.03);
-            box-shadow: 0 0 15px rgba(100, 180, 255, 0.6);
-        }
-
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .card {
-            padding: 25px;
-            margin: 25px 0;
-            border-radius: 15px;
-            animation: floatUp 0.8s ease;
-        }
-
-        @keyframes floatUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            transition: 0.3s ease;
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 25px;
-            opacity: 0.8;
-            animation: fadeIn 1.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Hamburger */
-        .hamburger {
-            display: none;
             flex-direction: column;
-            cursor: pointer;
+            gap: 10px;
         }
 
-        .hamburger div {
-            width: 28px;
-            height: 3px;
-            background: #fff;
-            margin: 5px 0;
-            transition: 0.3s ease;
+        .button {
+            width: 100%;
+            text-align: center;
         }
-
-        .hamburger.active div:nth-child(1) {
-            transform: rotate(-45deg) translate(-6px, 6px);
-        }
-
-        .hamburger.active div:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active div:nth-child(3) {
-            transform: rotate(45deg) translate(-6px, -6px);
-        }
-
-        @media (max-width: 768px) {
-            nav ul {
-                display: none;
-                position: absolute;
-                right: 20px;
-                top: 70px;
-                flex-direction: column;
-                padding: 15px;
-                gap: 10px;
-                width: 180px;
-            }
-
-            nav ul.active {
-                display: flex;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
-    <header class="glass">
-        <h1>EvanBlokEnder</h1>
-        <nav>
-            <div class="hamburger">
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-            <ul class="glass">
-                <li><a href="https://evanblokender.github.io">Home</a></li>
-                <li><a href="about.html">About Me</a></li>
-                <li><a href="https://evanblokender.github.io/projects">Projects</a></li>
-                <li><a href="https://evanblokender.github.io/models/">Models</a></li>
-                <li><a href="https://docs.google.com/document/d/1VYQbu_reYTmLp4PBpqTyRhqjERepbeULw4MEAHajz-A/edit?usp=sharing">Q/A</a></li>
-                <li><a href="videos.html">Videos</a></li>
-                <li><a href="stats.html">My Beat Saber Stats</a></li>
-                <li><a href="whatis.html">What is Beat Saber?</a></li>
-            </ul>
-        </nav>
-        <a href="https://youtube.com/@evanblokender" class="button" target="_blank">YouTube Link</a>
-    </header>
 
-    <div class="container">
-        <div class="card glass">
-            <h2>WELCOME TO MY PAGE...</h2>
-            <p>I'm just a VR YouTuber that plays Beat Saber... I think.</p>
-            <a href="stats.html" class="button">View my Beat Saber stats...</a>
-        </div>
+<header>
+    <h1>EvanBlokEnder</h1>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="stats.html">Beat Saber Stats</a></li>
+            <li><a href="whatis.html">What is Beat Saber?</a></li>
+            <li><a href="https://youtube.com/@evanblokender" target="_blank">YouTube</a></li>
+        </ul>
+    </nav>
+</header>
 
-        <div class="card glass">
-            <h3>EEEEEE</h3>
-            <p>EEEEEEE</p>
-        </div>
-
-        <div class="card glass">
-            <h3>Evan</h3>
-            <p>Just an okay Beat Saber player.</p>
-        </div>
-
-        <div class="card glass">
-            <h3>MM</h3>
-            <p>mm vs EEEEEEEE</p>
-        </div>
-
-        <a href="whatis.html" class="button">What is Beat Saber?</a>
+<div class="container">
+    <div class="card">
+        <h2>Welcome to my page!</h2>
+        <p>I'm a VR YouTuber who plays Beat Saber.</p>
+        <a href="stats.html" class="button">View my stats</a>
     </div>
 
-    <footer class="glass">
-        <p>&copy; 2025 EvanBlokEnder. All Rights Reserved.</p>
-    </footer>
+    <div class="card">
+        <h3>About Me</h3>
+        <p>Just an okay Beat Saber player sharing fun content.</p>
+        <a href="about.html" class="button">Learn More</a>
+    </div>
 
-    <script>
-        const hamburger = document.querySelector('.hamburger');
-        const navUl = document.querySelector('nav ul');
+    <div class="card">
+        <h3>Fun Links</h3>
+        <p>Check out my projects and videos!</p>
+        <a href="projects.html" class="button">See Projects</a>
+    </div>
 
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navUl.classList.toggle('active');
-        });
-    </script>
+    <div class="card">
+        <h3>Learn More</h3>
+        <p>Want to know about Beat Saber?</p>
+        <a href="whatis.html" class="button">What is Beat Saber?</a>
+    </div>
+</div>
+
+<footer>
+    &copy; 2025 EvanBlokEnder. All Rights Reserved.
+</footer>
+
 </body>
 </html>
