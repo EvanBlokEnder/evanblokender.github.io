@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beat Saber Stats - EvanBlokEnder</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background: #111;
+        color: #eee;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    header {
+        background: #222;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    header h1 {
+        font-size: 26px;
+        color: #4fc3f7;
+    }
+
+    nav {
+        flex: 1 1 100%;
+        margin-top: 10px;
+    }
+
+    nav ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        transition: max-height 0.3s ease;
+    }
+
+    nav ul li a {
+        text-decoration: none;
+        color: #eee;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    nav ul li a:hover {
+        background: #4fc3f7;
+        color: #111;
+    }
+
+    .button {
+        display: inline-block;
+        background: #4fc3f7;
+        color: #111;
+        padding: 10px 18px;
+        border-radius: 6px;
+        text-decoration: none;
+        margin-top: 10px;
+        transition: background 0.2s, transform 0.2s, opacity 0.2s;
+        cursor: pointer;
+    }
+
+    .button:hover {
+        background: #35a0d4;
+        transform: translateY(-2px);
+    }
+
+    .button.disabled {
+        background: #555;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .card {
+        background: #222;
+        padding: 20px;
+        border-radius: 12px;
+        transition: transform 0.2s, background 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        background: #333;
+    }
+
+    footer {
+        background: #222;
+        text-align: center;
+        padding: 20px;
+        font-size: 14px;
+        opacity: 0.8;
+        margin-top: auto;
+    }
+
+    .embed-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        z-index: 1000;
+    }
+
+    .embed-container iframe {
+        width: 90%;
+        height: 80%;
+        border: none;
+        border-radius: 12px;
+    }
+
+    .close-btn {
+        margin-top: 20px;
+        background: #ff4c4c;
+        color: #111;
+    }
+
+    .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 4px;
+    }
+
+    .hamburger div {
+        width: 25px;
+        height: 3px;
+        background: #4fc3f7;
+        transition: all 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+        header {
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        nav {
+            margin-top: 0;
+            overflow: hidden;
+        }
+
+        nav ul {
+            flex-direction: column;
+            gap: 10px;
+            max-height: 0;
+        }
+
+        nav ul.show {
+            max-height: 500px;
+        }
+
+        .hamburger {
+            display: flex;
+        }
+
+        .button {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>EvanBlokEnder</h1>
+    <div class="hamburger" id="hamburger">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <nav>
+        <ul id="nav-list">
+            <li><a href="">Home</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Choose a leaderboard</h2>
+        <p>Select which Beat Saber stats you want to view:</p>
+        <div style="display:flex; gap:20px; flex-wrap: wrap; justify-content:center;">
+            <div>
+                <button id="scoresaber" class="button disabled">Scoresaber</button>
+            </div>
+            <div>
+                <button id="beatleader" class="button">BeatLeader</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="embed-container" id="embedContainer">
+    <iframe id="embedIframe" src=""></iframe>
+    <button class="button close-btn" id="closeEmbed">Close</button>
+</div>
+
+<footer>
+    &copy; 2025 EvanBlokEnder. All Rights Reserved or not i just added this to be fancy anyways....
+</footer>
+
+<script>
+    const isGreyedOut = true;
+
+    const scoresaberBtn = document.getElementById('scoresaber');
+    const beatleaderBtn = document.getElementById('beatleader');
+    const embedContainer = document.getElementById('embedContainer');
+    const embedIframe = document.getElementById('embedIframe');
+    const closeBtn = document.getElementById('closeEmbed');
+    const hamburger = document.getElementById('hamburger');
+    const navList = document.getElementById('nav-list');
+
+    if(isGreyedOut) {
+        scoresaberBtn.classList.add('disabled');
+    }
+
+    beatleaderBtn.addEventListener('click', () => {
+        embedIframe.src = "https://beatleader.com/u/evanblokender";
+        embedContainer.style.display = "flex";
+    });
+
+    closeBtn.addEventListener('click', () => {
+        embedContainer.style.display = "none";
+        embedIframe.src = "";
+    });
+
+    hamburger.addEventListener('click', () => {
+        navList.classList.toggle('show');
+    });
+</script>
+
+</body>
+</html>
