@@ -45,6 +45,7 @@
         flex-wrap: wrap;
         gap: 10px;
         justify-content: center;
+        transition: max-height 0.3s ease;
     }
 
     nav ul li a {
@@ -111,19 +112,45 @@
         margin-top: auto;
     }
 
+    /* Hamburger styles */
+    .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 4px;
+    }
+
+    .hamburger div {
+        width: 25px;
+        height: 3px;
+        background: #4fc3f7;
+        transition: all 0.3s ease;
+    }
+
+    /* Mobile styles */
     @media (max-width: 768px) {
         header {
-            justify-content: center;
+            justify-content: space-between;
             text-align: center;
         }
 
         nav {
-            margin-top: 15px;
+            margin-top: 0;
+            overflow: hidden;
         }
 
         nav ul {
             flex-direction: column;
             gap: 10px;
+            max-height: 0;
+        }
+
+        nav ul.show {
+            max-height: 500px;
+        }
+
+        .hamburger {
+            display: flex;
         }
 
         .button {
@@ -137,8 +164,13 @@
 
 <header>
     <h1>EvanBlokEnder</h1>
+    <div class="hamburger" id="hamburger">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
     <nav>
-        <ul>
+        <ul id="nav-list">
             <li><a href="index.html">Home</a></li>
             <li><a href="about.html">About</a></li>
             <li><a href="projects">Projects</a></li>
@@ -178,6 +210,15 @@
 <footer>
     &copy; 2025 EvanBlokEnder. All Rights Reserved or not i just added this to be fancy anyways....
 </footer>
+
+<script>
+    const hamburger = document.getElementById('hamburger');
+    const navList = document.getElementById('nav-list');
+
+    hamburger.addEventListener('click', () => {
+        navList.classList.toggle('show');
+    });
+</script>
 
 </body>
 </html>
