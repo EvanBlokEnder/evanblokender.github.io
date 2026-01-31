@@ -1,41 +1,25 @@
 {
-  "name": "EvanBlokEnder’s REPO",
-  "subtitle": "A source for all of my apps",
-  "description": "Welcome to my source! Here you'll find all of my apps.",
-  "iconURL": "https://i.imgur.com/u2UQiAI.png",
-  "website": "https://evanblokender.org",
-  "patreonURL": "",
-  "tintColor": "#6156e2",
-  "featuredApps": [],
-  "apps": [
-    {
-      "name": "MODDED_ACCompanion",
-      "bundleIdentifier": "com.woostergames.animalcompanyy",
-      "marketplaceID": "",
-      "developerName": "WoosterGames/Lackson",
-      "subtitle": "Modded Animal Company Companion",
-      "localizedDescription": "Modded Ac Comp",
-      "iconURL": "https://i.imgur.com/VyspfQ8.png",
-      "tintColor": "#e9411c",
-      "category": "other",
-      "screenshots": [],
-      "versions": [
+    "name": "MODDED ACCompanion",
+    "identifier": "com.woosterGames.animalCompany",
+    "apps": [
         {
-          "downloadURL": "https://github.com/evanblokender/evanblokender.github.io/releases/download/Isis/MODDED_ACCompanion_1.48.1.ipa",
-          "size": 401800000,
-          "version": "1.58.1",
-          "buildVersion": null,
-          "date": "2026-01-31T19:20:00-05:00",
-          "localizedDescription": null,
-          "minOSVersion": null
+            "bundleIdentifier": "com.woosterGames.animalCompanyy",
+            "developerName": "Lackson",
+            "downloadURL": "https://github.com/evanblokender/evanblokender.github.io/releases/download/Isis/MODDED_ACCompanion_1.48.1.ipa",
+            "iconURL": "https://evanblokender.github.io/IMG_1627.png",
+            "localizedDescription": "animal company companion with lackson client",
+            "name": "PokeMMO",
+            "screenshotURLs": [
+                "https://evanblokender.github.io/IMG_1627.png",
+                "https://evanblokender.github.io/IMG_1627.png",
+                "https://evanblokender.github.io/IMG_1627.png",
+                "https://evanblokender.github.io/IMG_1627.png",
+                "https://evanblokender.github.io/IMG_1627.png"
+            ],
+            "size": 382000000,
+            "tintColor": "73ACE2",
+            "version": "1.58.1",
+            "versionDate": "2026-01-31T00:00:00+00:00"
         }
-      ],
-      "appPermissions": {
-        "entitlements": [],
-        "privacy": {
-          "NSMicrophoneUsageDescription": "Needs microphone permission for voice chat capability"
-        }
-      }      
-  ],
-  "news": []
+    ]
 }
