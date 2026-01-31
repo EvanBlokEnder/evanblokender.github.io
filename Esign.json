@@ -35,9 +35,7 @@
         "privacy": {
           "NSMicrophoneUsageDescription": "Needs microphone permission for voice chat capability"
         }
-      },
-      "patreon": {}
-    }
+      }      
   ],
   "news": []
 }
