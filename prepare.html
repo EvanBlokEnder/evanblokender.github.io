@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tutorial</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: #f5f5f5;
+        padding-top: 50px;
+    }
+
+    #circle {
+        width: 120px;
+        height: 120px;
+        background: #4CAF50;
+        border-radius: 50%;
+        margin: 30px auto;
+        display: none;
+        cursor: pointer;
+    }
+
+    button {
+        padding: 12px 25px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #reason {
+        margin-top: 40px;
+        font-style: italic;
+        color: #555;
+    }
+</style>
+</head>
+<body>
+
+<h1>Tutorial</h1>
+<p>
+Press this button below then start spamming where this circle is.  
+After that it will redirect in 3 seconds.  
+KEEP SPAMMING AFTER THE WEBSITE LOADS FOR 1 EXTRA SECOND!!!!!!
+</p>
+
+<button onclick="startTutorial()">Start</button>
+
+<div id="circle"></div>
+
+<div id="reason">
+Reasononing: bypass@s goguard1an
+</div>
+
+<script>
+function startTutorial() {
+    document.getElementById("circle").style.display = "block";
+
+    setTimeout(function() {
+        window.location.href = "https://proxdata.evanblokender.org/"; // change this later
+    }, 3000);
+}
+</script>
+
+</body>
+</html>
