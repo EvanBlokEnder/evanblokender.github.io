@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FlipZip — Batch Image Flipper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2333;
+    --border: #2a3045;
+    --accent: #4f8eff;
+    --accent2: #7b5cf0;
+    --accent-glow: rgba(79,142,255,0.18);
+    --text: #e8ecf4;
+    --muted: #6b7592;
+    --success: #34d399;
+    --warn: #fbbf24;
+    --danger: #f87171;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.45);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated bg blobs */
+  .bg-blobs {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .bg-blobs span {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.13;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  .bg-blobs span:nth-child(1) { width: 500px; height: 500px; background: var(--accent); top: -120px; left: -100px; animation-delay: 0s; }
+  .bg-blobs span:nth-child(2) { width: 400px; height: 400px; background: var(--accent2); bottom: -80px; right: -80px; animation-delay: -4s; }
+  .bg-blobs span:nth-child(3) { width: 300px; height: 300px; background: var(--success); top: 40%; left: 50%; animation-delay: -8s; }
+  @keyframes drift { from { transform: translateY(0) scale(1); } to { transform: translateY(30px) scale(1.08); } }
+
+  /* Layout */
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* Header */
+  header {
+    padding: 48px 0 40px;
+    display: flex; align-items: center; gap: 18px;
+  }
+  .logo-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; box-shadow: 0 4px 20px rgba(79,142,255,0.35);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem; font-weight: 700; letter-spacing: -0.03em;
+    background: linear-gradient(90deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  header p { color: var(--muted); font-size: 0.93rem; margin-top: 2px; }
+
+  /* Step cards */
+  .step-flow { display: flex; flex-direction: column; gap: 20px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 28px;
+    box-shadow: var(--shadow);
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: rgba(79,142,255,0.3); }
+
+  .card-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 22px;
+  }
+  .step-badge {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; font-size: 0.8rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; box-shadow: 0 2px 10px rgba(79,142,255,0.3);
+  }
+  .card-header h2 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+  .card-header span { color: var(--muted); font-size: 0.85rem; margin-left: auto; }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+    position: relative; overflow: hidden;
+    background: rgba(255,255,255,0.015);
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    transform: scale(1.01);
+  }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 2.8rem; margin-bottom: 14px; display: block; line-height: 1; }
+  .upload-zone h3 { font-size: 1.05rem; font-weight: 500; margin-bottom: 6px; }
+  .upload-zone p { color: var(--muted); font-size: 0.85rem; }
+
+  /* Image grid */
+  .grid-controls {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .img-count { color: var(--muted); font-size: 0.85rem; margin-left: auto; }
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+  }
+
+  .img-thumb {
+    position: relative; border-radius: var(--radius-sm);
+    overflow: hidden; cursor: pointer; aspect-ratio: 1;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    background: var(--surface2);
+  }
+  .img-thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block;
+    transition: transform 0.25s ease;
+  }
+  .img-thumb:hover { border-color: rgba(79,142,255,0.5); }
+  .img-thumb:hover img { transform: scale(1.04); }
+  .img-thumb.selected { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  .img-thumb .check {
+    position: absolute; top: 6px; right: 6px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
+  }
+  .img-thumb.selected .check { opacity: 1; transform: scale(1); }
+  .img-thumb .name-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.75));
+    color: #fff; font-size: 0.68rem; padding: 12px 6px 5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    text-align: center;
+  }
+
+  /* Flip controls */
+  .flip-options {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  }
+  .flip-label { color: var(--muted); font-size: 0.85rem; flex-basis: 100%; }
+
+  /* Buttons — Material You ripple */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 22px; border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 500; letter-spacing: 0.01em;
+    border: none; cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .btn:active { transform: scale(0.96); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(79,142,255,0.35);
+  }
+  .btn-primary:hover { box-shadow: 0 6px 24px rgba(79,142,255,0.5); transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--surface2); color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.07); border-color: var(--accent); }
+
+  .btn-toggle {
+    background: var(--surface2); color: var(--muted);
+    border: 1.5px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 50px;
+  }
+  .btn-toggle.active {
+    background: var(--accent-glow); color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border); padding: 8px 16px;
+    font-size: 0.82rem;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+
+  .btn-success {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(52,211,153,0.3);
+  }
+  .btn-success:hover { box-shadow: 0 6px 24px rgba(52,211,153,0.45); transform: translateY(-1px); }
+  .btn-success:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Ripple */
+  .ripple-circle {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: scale(0); pointer-events: none;
+    animation: ripple-anim 0.55s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+  @keyframes ripple-anim {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* Preview panel */
+  .preview-wrapper {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 600px) { .preview-wrapper { grid-template-columns: 1fr; } }
+
+  .preview-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .preview-box img {
+    max-width: 100%; max-height: 100%; object-fit: contain;
+    transition: transform 0.4s cubic-bezier(.34,1.2,.64,1);
+  }
+  .preview-label {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
+    color: #fff; font-size: 0.72rem; padding: 3px 8px;
+    border-radius: 20px; letter-spacing: 0.04em;
+  }
+  .preview-empty {
+    color: var(--muted); font-size: 0.85rem;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .preview-empty span { font-size: 2rem; opacity: 0.5; }
+
+  /* Selection bar */
+  .sel-bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 14px 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 16px;
+  }
+  .sel-bar span { color: var(--muted); font-size: 0.85rem; flex: 1; }
+  .sel-count { font-weight: 600; color: var(--accent); }
+
+  /* Status bar */
+  .status-bar {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px; padding: 12px 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    display: flex; align-items: center; gap: 12px;
+    font-size: 0.88rem;
+    z-index: 100;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateX(-50%) translateY(10px);
+    white-space: nowrap;
+  }
+  .status-bar.show {
+    opacity: 1; pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+  .status-bar .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success); flex-shrink: 0;
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  /* Progress */
+  .progress-bar {
+    width: 100%; height: 4px; background: var(--surface2);
+    border-radius: 2px; overflow: hidden; margin-top: 14px;
+    display: none;
+  }
+  .progress-bar.show { display: block; }
+  .progress-fill {
+    height: 100%; width: 0%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.2s;
+  }
+
+  /* Empty state */
+  .hidden { display: none !important; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* Chip tags */
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 11px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 500;
+    background: rgba(79,142,255,0.12); color: var(--accent);
+    border: 1px solid rgba(79,142,255,0.25);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="bg-blobs">
+  <span></span><span></span><span></span>
+</div>
+
+<div class="app">
+
+  <header>
+    <div class="logo-icon">🔄</div>
+    <div>
+      <h1>FlipZip</h1>
+      <p>Batch flip images from a ZIP — no uploads, fully offline</p>
+    </div>
+  </header>
+
+  <div class="step-flow">
+
+    <!-- Step 1: Upload -->
+    <div class="card" id="step1">
+      <div class="card-header">
+        <div class="step-badge">1</div>
+        <h2>Upload your ZIP</h2>
+      </div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept=".zip"/>
+        <span class="upload-icon">📦</span>
+        <h3>Drop your ZIP file here</h3>
+        <p>or click to browse · supports JPG, PNG, GIF, WEBP inside</p>
+      </div>
+    </div>
+
+    <!-- Step 2: Select -->
+    <div class="card hidden" id="step2">
+      <div class="card-header">
+        <div class="step-badge">2</div>
+        <h2>Select Images</h2>
+        <span class="img-count" id="imgCount">0 images</span>
+      </div>
+
+      <div class="sel-bar">
+        <span>Selected: <b class="sel-count" id="selCount">0</b></span>
+        <button class="btn btn-ghost" id="btnSelectAll" onclick="selectAll()">Select All</button>
+        <button class="btn btn-ghost" id="btnClearSel" onclick="clearSelection()">Clear</button>
+      </div>
+
+      <div class="image-grid" id="imageGrid"></div>
+    </div>
+
+    <!-- Step 3: Flip -->
+    <div class="card hidden" id="step3">
+      <div class="card-header">
+        <div class="step-badge">3</div>
+        <h2>Choose Flip Direction</h2>
+      </div>
+      <div class="flip-options">
+        <div class="flip-label">Apply to all selected images:</div>
+        <button class="btn btn-toggle active" id="btnH" onclick="setFlip('horizontal')">↔ Horizontal</button>
+        <button class="btn btn-toggle" id="btnV" onclick="setFlip('vertical')">↕ Vertical</button>
+        <button class="btn btn-toggle" id="btnBoth" onclick="setFlip('both')">⤢ Both</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Preview -->
+    <div class="card hidden" id="step4">
+      <div class="card-header">
+        <div class="step-badge">4</div>
+        <h2>Preview</h2>
+        <span id="previewNavInfo" style="color:var(--muted);font-size:.82rem;"></span>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-secondary" id="prevBtn" onclick="previewNav(-1)">← Prev</button>
+        <button class="btn btn-secondary" id="nextBtn" onclick="previewNav(1)">Next →</button>
+        <span id="previewName" style="color:var(--muted);font-size:.82rem;"></span>
+      </div>
+
+      <div class="preview-wrapper">
+        <div class="preview-box" id="previewOrigBox">
+          <div class="preview-label">Original</div>
+          <div class="preview-empty" id="emptyOrig"><span>🖼️</span>Select images above</div>
+          <img id="previewOrig" class="hidden" alt="Original"/>
+        </div>
+        <div class="preview-box" id="previewFlipBox">
+          <div class="preview-label">Flipped</div>
+          <div class="preview-empty" id="emptyFlip"><span>🔄</span>Waiting…</div>
+          <img id="previewFlip" class="hidden" alt="Flipped"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Download -->
+    <div class="card hidden" id="step5">
+      <div class="card-header">
+        <div class="step-badge">5</div>
+        <h2>Download</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <button class="btn btn-success" id="downloadBtn" onclick="downloadZip()">
+          ⬇ Download Flipped ZIP
+        </button>
+        <div id="dlInfo" style="color:var(--muted);font-size:.85rem;"></div>
+      </div>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Status toast -->
+<div class="status-bar" id="statusBar">
+  <div class="dot"></div>
+  <span id="statusMsg">Ready</span>
+</div>
+
+<canvas id="offCanvas" style="display:none;"></canvas>
+
+<script>
+/* =========================================================
+   State
+   ========================================================= */
+let allImages = [];   // { name, blob, url, selected }
+let flipMode = 'horizontal';
+let previewIndex = 0;
+
+/* =========================================================
+   Ripple effect
+   ========================================================= */
+function addRipple(e) {
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x = e.clientX - rect.left - size / 2;
+  const y = e.clientY - rect.top - size / 2;
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple-circle';
+  ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
+  btn.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove());
+}
+document.querySelectorAll('.btn').forEach(b => b.addEventListener('click', addRipple));
+
+/* =========================================================
+   Toast
+   ========================================================= */
+let toastTimer;
+function toast(msg, dur = 2500) {
+  const bar = document.getElementById('statusBar');
+  document.getElementById('statusMsg').textContent = msg;
+  bar.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => bar.classList.remove('show'), dur);
+}
+
+/* =========================================================
+   Drag & Drop Upload
+   ========================================================= */
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleZip(file);
+});
+document.getElementById('fileInput').addEventListener('change', e => {
+  if (e.target.files[0]) handleZip(e.target.files[0]);
+});
+
+/* =========================================================
+   Parse ZIP
+   ========================================================= */
+async function handleZip(file) {
+  toast('Reading ZIP…', 8000);
+  try {
+    const zip = await JSZip.loadAsync(file);
+    const exts = /\.(jpe?g|png|gif|webp|bmp|tiff?)$/i;
+    allImages = [];
+
+    const entries = Object.values(zip.files).filter(f => !f.dir && exts.test(f.name));
+    if (!entries.length) { toast('No images found in ZIP ❌'); return; }
+
+    for (const entry of entries) {
+      const blob = await entry.async('blob');
+      const url = URL.createObjectURL(blob);
+      // Get mime type
+      const ext = entry.name.split('.').pop().toLowerCase();
+      const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
+                 : ext === 'png' ? 'image/png'
+                 : ext === 'gif' ? 'image/gif'
+                 : ext === 'webp' ? 'image/webp'
+                 : 'image/png';
+      allImages.push({ name: entry.name, blob, url, selected: false, mime });
+    }
+
+    renderGrid();
+    document.getElementById('step2').classList.remove('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+    document.getElementById('step4').classList.remove('hidden');
+    document.getElementById('step5').classList.remove('hidden');
+    document.getElementById('imgCount').textContent = `${allImages.length} image${allImages.length !== 1 ? 's' : ''}`;
+    toast(`✅ Loaded ${allImages.length} images`);
+    updatePreview();
+  } catch(err) {
+    toast('Failed to read ZIP ❌');
+    console.error(err);
+  }
+}
+
+/* =========================================================
+   Grid
+   ========================================================= */
+function renderGrid() {
+  const grid = document.getElementById('imageGrid');
+  grid.innerHTML = '';
+  allImages.forEach((img, i) => {
+    const div = document.createElement('div');
+    div.className = 'img-thumb' + (img.selected ? ' selected' : '');
+    div.dataset.index = i;
+    div.innerHTML = `
+      <img src="${img.url}" alt="${img.name}" loading="lazy"/>
+      <div class="check">✓</div>
+      <div class="name-label">${shortName(img.name)}</div>
+    `;
+    div.addEventListener('click', (e) => { addRipple(e); toggleSelect(i); });
+    grid.appendChild(div);
+  });
+  updateSelCount();
+}
+
+function shortName(name) {
+  const parts = name.split('/');
+  const base = parts[parts.length - 1];
+  return base.length > 18 ? base.slice(0, 15) + '…' : base;
+}
+
+function toggleSelect(i) {
+  allImages[i].selected = !allImages[i].selected;
+  const thumb = document.querySelector(`.img-thumb[data-index="${i}"]`);
+  thumb.classList.toggle('selected', allImages[i].selected);
+  updateSelCount();
+  previewIndex = allImages.findIndex((img, idx) => img.selected) ?? i;
+  updatePreview();
+}
+
+function selectAll() {
+  allImages.forEach((img, i) => {
+    img.selected = true;
+    document.querySelector(`.img-thumb[data-index="${i}"]`)?.classList.add('selected');
+  });
+  previewIndex = 0;
+  updateSelCount();
+  updatePreview();
+}
+
+function clearSelection() {
+  allImages.forEach((img, i) => {
+    img.selected = false;
+    document.querySelector(`.img-thumb[data-index="${i}"]`)?.classList.remove('selected');
+  });
+  updateSelCount();
+  updatePreview();
+}
+
+function updateSelCount() {
+  const count = allImages.filter(i => i.selected).length;
+  document.getElementById('selCount').textContent = count;
+  const dlInfo = document.getElementById('dlInfo');
+  dlInfo.textContent = count ? `${count} image${count !== 1 ? 's' : ''} will be flipped (${flipMode})` : 'Select at least one image';
+  document.getElementById('downloadBtn').disabled = count === 0;
+}
+
+/* =========================================================
+   Flip selector
+   ========================================================= */
+function setFlip(mode) {
+  flipMode = mode;
+  ['H','V','Both'].forEach(id => document.getElementById('btn'+id).classList.remove('active'));
+  const map = { horizontal: 'H', vertical: 'V', both: 'Both' };
+  document.getElementById('btn' + map[mode]).classList.add('active');
+  updateSelCount();
+  renderPreview();
+}
+
+/* =========================================================
+   Preview
+   ========================================================= */
+function selectedImages() {
+  return allImages.filter(i => i.selected);
+}
+
+function updatePreview() {
+  const sel = selectedImages();
+  const nav = document.getElementById('previewNavInfo');
+  if (!sel.length) {
+    nav.textContent = '';
+    document.getElementById('previewName').textContent = '';
+    document.getElementById('previewOrig').classList.add('hidden');
+    document.getElementById('previewFlip').classList.add('hidden');
+    document.getElementById('emptyOrig').classList.remove('hidden');
+    document.getElementById('emptyFlip').classList.remove('hidden');
+    document.getElementById('prevBtn').disabled = true;
+    document.getElementById('nextBtn').disabled = true;
+    return;
+  }
+  // clamp
+  if (previewIndex >= sel.length) previewIndex = sel.length - 1;
+  if (previewIndex < 0) previewIndex = 0;
+
+  nav.textContent = `${previewIndex + 1} / ${sel.length}`;
+  document.getElementById('prevBtn').disabled = previewIndex === 0;
+  document.getElementById('nextBtn').disabled = previewIndex === sel.length - 1;
+  renderPreview();
+}
+
+function previewNav(dir) {
+  previewIndex += dir;
+  updatePreview();
+}
+
+function renderPreview() {
+  const sel = selectedImages();
+  if (!sel.length) return;
+  const img = sel[previewIndex];
+
+  const origEl = document.getElementById('previewOrig');
+  origEl.src = img.url;
+  origEl.classList.remove('hidden');
+  document.getElementById('emptyOrig').classList.add('hidden');
+  document.getElementById('previewName').textContent = shortName(img.name);
+
+  // Flip using canvas
+  const image = new Image();
+  image.onload = () => {
+    const canvas = document.getElementById('offCanvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    if (flipMode === 'horizontal') {
+      ctx.translate(image.width, 0);
+      ctx.scale(-1, 1);
+    } else if (flipMode === 'vertical') {
+      ctx.translate(0, image.height);
+      ctx.scale(1, -1);
+    } else {
+      ctx.translate(image.width, image.height);
+      ctx.scale(-1, -1);
+    }
+    ctx.drawImage(image, 0, 0);
+    ctx.restore();
+
+    const flipEl = document.getElementById('previewFlip');
+    flipEl.src = canvas.toDataURL(img.mime || 'image/png');
+    flipEl.classList.remove('hidden');
+    document.getElementById('emptyFlip').classList.add('hidden');
+  };
+  image.src = img.url;
+}
+
+/* =========================================================
+   Download ZIP
+   ========================================================= */
+async function downloadZip() {
+  const sel = selectedImages();
+  if (!sel.length) { toast('No images selected'); return; }
+
+  const btn = document.getElementById('downloadBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Processing…';
+
+  const progress = document.getElementById('progressBar');
+  const fill = document.getElementById('progressFill');
+  progress.classList.add('show');
+  fill.style.width = '0%';
+
+  toast('Building ZIP…', 20000);
+
+  try {
+    const zip = new JSZip();
+    const canvas = document.getElementById('offCanvas');
+    const ctx = canvas.getContext('2d');
+
+    for (let i = 0; i < sel.length; i++) {
+      const item = sel[i];
+      fill.style.width = `${Math.round((i / sel.length) * 90)}%`;
+
+      const dataUrl = await flipImageToDataURL(item, canvas, ctx);
+      const base64 = dataUrl.split(',')[1];
+      // Keep original path structure
+      zip.file(item.name, base64, { base64: true });
+
+      // Small async yield to keep UI responsive
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    fill.style.width = '95%';
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+    fill.style.width = '100%';
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'flipped_images.zip';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    toast(`✅ Downloaded ${sel.length} flipped images!`);
+  } catch(err) {
+    toast('Error creating ZIP ❌');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '⬇ Download Flipped ZIP';
+    setTimeout(() => { progress.classList.remove('show'); fill.style.width = '0%'; }, 1500);
+  }
+}
+
+function flipImageToDataURL(item, canvas, ctx) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (flipMode === 'horizontal') {
+        ctx.translate(image.width, 0);
+        ctx.scale(-1, 1);
+      } else if (flipMode === 'vertical') {
+        ctx.translate(0, image.height);
+        ctx.scale(1, -1);
+      } else {
+        ctx.translate(image.width, image.height);
+        ctx.scale(-1, -1);
+      }
+      ctx.drawImage(image, 0, 0);
+      ctx.restore();
+      resolve(canvas.toDataURL(item.mime || 'image/png', 0.95));
+    };
+    image.onerror = reject;
+    image.src = item.url;
+  });
+}
+
+/* =========================================================
+   Re-apply ripple to dynamically added buttons
+   ========================================================= */
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.btn');
+  if (btn && !btn.querySelector('.ripple-circle')) {
+    addRipple({ currentTarget: btn, clientX: e.clientX, clientY: e.clientY });
+  }
+});
+
+// Init
+updateSelCount();
+</script>
+</body>
+</html>
