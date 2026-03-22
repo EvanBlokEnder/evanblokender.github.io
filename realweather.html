@@ -1,396 +1,987 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Weather Radar & Warnings</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(45deg, #000033, #000066);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        h1 {
-            margin-bottom: 20px;
-            font-size: 2rem;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            width: 100%;
-            max-width: 1200px;
-        }
-        .search-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .search-container input {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            width: 200px;
-        }
-        .search-container button {
-            padding: 10px 20px;
-            background: #00008B;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .search-container button:hover {
-            background: #0000CD;
-        }
-        .radar {
-            background: radial-gradient(circle, #001122, #000033);
-            border: 2px solid #00ffff;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-            padding: 20px;
-            width: 100%;
-            text-align: center;
-        }
-        .alerts {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 8px;
-            padding: 20px;
-            width: 100%;
-            text-align: center;
-        }
-        .alerts h2 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-        .alerts ul {
-            list-style: none;
-        }
-        .alerts li {
-            margin: 10px 0;
-            padding: 10px;
-            background: rgba(255, 0, 0, 0.2);
-            border-radius: 5px;
-        }
-        .go-back-button {
-            padding: 10px 20px;
-            background: #00008B;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            margin-left: auto;
-        }
-        .go-back-button:hover {
-            background: #0000CD;
-        }
-        .warning-popup {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #ff4444;
-            color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 1000;
-        }
-        .warning-popup.show {
-            display: block;
-        }
-        .state-alerts-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            border-radius: 8px;
-            padding: 20px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            z-index: 1001;
-            display: none;
-        }
-        .state-alerts-modal.show {
-            display: block;
-        }
-        .state-alerts-modal h2 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-        .state-alerts-modal ul {
-            list-style: none;
-        }
-        .state-alerts-modal li {
-            margin: 10px 0;
-            padding: 10px;
-            background: rgba(255, 0, 0, 0.2);
-            border-radius: 5px;
-        }
-        .state-alerts-modal button {
-            padding: 10px 20px;
-            background: #00008B;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-        .state-alerts-modal button:hover {
-            background: #0000CD;
-        }
-        .rate-limit-warning {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #ff4444;
-            color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            font-size: 1.2rem;
-            z-index: 1002;
-            display: none;
-        }
-        .rate-limit-warning.show {
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StormWatch — Live Radar & Alerts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #07090f;
+      --bg2: #0d1117;
+      --glass: rgba(255,255,255,0.055);
+      --glass-border: rgba(255,255,255,0.12);
+      --glass-hover: rgba(255,255,255,0.085);
+      --blur: blur(28px) saturate(180%);
+      --blue: #3b8cf8;
+      --blue-glow: rgba(59,140,248,0.35);
+      --cyan: #00e5ff;
+      --cyan-glow: rgba(0,229,255,0.25);
+      --red: #ff4d4d;
+      --red-glow: rgba(255,77,77,0.3);
+      --orange: #ff8c00;
+      --yellow: #ffd700;
+      --green: #00e676;
+      --text: #f0f4ff;
+      --text-dim: rgba(240,244,255,0.5);
+      --text-muted: rgba(240,244,255,0.28);
+      --radius: 20px;
+      --radius-sm: 12px;
+      --shadow: 0 8px 48px rgba(0,0,0,0.6);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Ambient background orbs ── */
+    .orbs {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); opacity: 0.18; animation: drift 18s ease-in-out infinite alternate;
+    }
+    .orb1 { width: 600px; height: 600px; background: #1a3a8c; top: -200px; left: -150px; animation-delay: 0s; }
+    .orb2 { width: 400px; height: 400px; background: #003d5c; bottom: -100px; right: -100px; animation-delay: -6s; }
+    .orb3 { width: 300px; height: 300px; background: #1a1060; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -12s; }
+    @keyframes drift { from { transform: translateY(0) scale(1); } to { transform: translateY(40px) scale(1.08); } }
+
+    /* ── Layout ── */
+    .layout {
+      position: relative; z-index: 1;
+      max-width: 1280px; margin: 0 auto;
+      padding: 24px 20px 80px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 28px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .logo-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #1a5fff, #00c8ff);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 20px rgba(59,140,248,0.45);
+    }
+    .logo-text h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+    .logo-text span { font-size: 0.72rem; color: var(--text-dim); font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .live-badge {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px;
+      background: rgba(0,230,118,0.12);
+      border: 1px solid rgba(0,230,118,0.25);
+      font-size: 0.72rem; font-weight: 600; color: var(--green);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ── Glass Button ── */
+    .btn {
+      position: relative; overflow: hidden;
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.82rem; font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.12s, box-shadow 0.2s;
+      user-select: none;
+      letter-spacing: 0.01em;
+    }
+    .btn:hover {
+      background: var(--glass-hover);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 4px 24px rgba(59,140,248,0.18);
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(59,140,248,0.7), rgba(0,200,255,0.5));
+      border-color: rgba(59,140,248,0.5);
+      box-shadow: 0 4px 24px var(--blue-glow);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, rgba(59,140,248,0.85), rgba(0,200,255,0.65));
+      box-shadow: 0 6px 32px var(--blue-glow);
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, rgba(255,77,77,0.5), rgba(255,100,30,0.4));
+      border-color: rgba(255,77,77,0.4);
+    }
+    .btn-sm { padding: 7px 16px; font-size: 0.75rem; border-radius: 10px; }
+
+    /* Liquid ripple */
+    .ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.28);
+      transform: scale(0); animation: ripple-expand 0.55s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple-expand {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ── Search Bar ── */
+    .search-row {
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    }
+    .search-glass {
+      flex: 1; min-width: 200px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-glass:focus-within {
+      border-color: rgba(59,140,248,0.5);
+      box-shadow: 0 0 0 3px rgba(59,140,248,0.12);
+    }
+    .search-glass input {
+      flex: 1; background: none; border: none; outline: none;
+      color: var(--text); font-family: 'Sora', sans-serif; font-size: 0.88rem;
+    }
+    .search-glass input::placeholder { color: var(--text-muted); }
+    .search-glass .icon { color: var(--text-dim); font-size: 16px; }
+
+    .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      padding: 6px 14px; border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      font-size: 0.72rem; font-weight: 500; cursor: pointer;
+      color: var(--text-dim); transition: all 0.18s;
+      user-select: none;
+    }
+    .chip:hover, .chip.active {
+      background: rgba(59,140,248,0.18);
+      border-color: rgba(59,140,248,0.4);
+      color: var(--blue);
+    }
+    .chip.all.active { background: rgba(240,244,255,0.1); border-color: rgba(240,244,255,0.25); color: var(--text); }
+
+    /* ── Two-column main area ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Glass Card ── */
+    .card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .card-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em;
+    }
+    .card-icon {
+      width: 32px; height: 32px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .ci-blue { background: rgba(59,140,248,0.2); }
+    .ci-red { background: rgba(255,77,77,0.2); }
+    .ci-cyan { background: rgba(0,229,255,0.15); }
+
+    /* ── Radar ── */
+    .radar-wrap {
+      padding: 0;
+      display: flex; flex-direction: column;
+    }
+    .radar-wrap iframe {
+      width: 100%; height: 420px; border: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .radar-controls {
+      display: flex; gap: 8px; padding: 14px 22px;
+      border-bottom: 1px solid var(--glass-border);
+      flex-wrap: wrap;
+    }
+
+    /* ── Alerts panel ── */
+    .alerts-panel { display: flex; flex-direction: column; }
+    .alerts-list { flex: 1; overflow-y: auto; padding: 12px; max-height: 500px; }
+    .alerts-list::-webkit-scrollbar { width: 4px; }
+    .alerts-list::-webkit-scrollbar-track { background: transparent; }
+    .alerts-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 999px; }
+
+    .alert-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px; border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, transform 0.12s;
+      animation: slide-in-r 0.3s ease;
+    }
+    @keyframes slide-in-r {
+      from { opacity: 0; transform: translateX(16px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .alert-item:hover {
+      background: var(--glass-hover);
+      border-color: rgba(255,255,255,0.18);
+      transform: translateX(-2px);
+    }
+    .alert-severity {
+      width: 5px; border-radius: 999px; align-self: stretch; flex-shrink: 0;
+    }
+    .sev-extreme { background: #ff1744; box-shadow: 0 0 8px rgba(255,23,68,0.6); }
+    .sev-severe { background: #ff6d00; box-shadow: 0 0 8px rgba(255,109,0,0.5); }
+    .sev-moderate { background: #ffd600; box-shadow: 0 0 8px rgba(255,214,0,0.4); }
+    .sev-minor { background: #00b0ff; box-shadow: 0 0 6px rgba(0,176,255,0.4); }
+    .sev-unknown { background: var(--text-muted); }
+
+    .alert-content { flex: 1; min-width: 0; }
+    .alert-event {
+      font-size: 0.82rem; font-weight: 600; margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .alert-meta {
+      font-size: 0.7rem; color: var(--text-dim);
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .alert-tag {
+      padding: 2px 8px; border-radius: 999px;
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .tag-extreme { background: rgba(255,23,68,0.2); color: #ff6384; border: 1px solid rgba(255,23,68,0.3); }
+    .tag-severe  { background: rgba(255,109,0,0.2); color: #ffa040; border: 1px solid rgba(255,109,0,0.3); }
+    .tag-moderate{ background: rgba(255,214,0,0.15); color: #ffe040; border: 1px solid rgba(255,214,0,0.25); }
+    .tag-minor   { background: rgba(0,176,255,0.15); color: #60d0ff; border: 1px solid rgba(0,176,255,0.25); }
+    .tag-unknown { background: rgba(255,255,255,0.08); color: var(--text-dim); border: 1px solid var(--glass-border); }
+
+    .no-alerts {
+      text-align: center; padding: 40px 20px;
+      color: var(--text-muted); font-size: 0.82rem;
+    }
+    .no-alerts span { font-size: 2rem; display: block; margin-bottom: 10px; }
+
+    .alerts-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--glass-border);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.72rem; color: var(--text-dim);
+    }
+    .count-badge {
+      background: rgba(59,140,248,0.2);
+      border: 1px solid rgba(59,140,248,0.3);
+      color: var(--blue);
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+
+    /* ── Stats Row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 700px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+
+    .stat-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+    }
+    .stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+    .stat-sub { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
+    .sv-red { color: #ff6384; }
+    .sv-orange { color: #ffa040; }
+    .sv-yellow { color: #ffe040; }
+    .sv-blue { color: var(--blue); }
+
+    /* ── Detail Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.22s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: rgba(13,17,23,0.92);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      width: 100%; max-width: 580px;
+      max-height: 85vh; overflow-y: auto;
+      padding: 28px;
+      transform: scale(0.95) translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+    }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+    .modal-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+    .modal-event { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+    .modal-close {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      color: var(--text-dim); font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; margin-left: 12px;
+      transition: background 0.18s, color 0.18s;
+    }
+    .modal-close:hover { background: var(--glass-hover); color: var(--text); }
+    .modal-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .modal-row { margin-bottom: 14px; }
+    .modal-row-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .modal-row-value { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+    .modal-desc {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 0.8rem; line-height: 1.65; color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      white-space: pre-wrap; word-break: break-word;
+      max-height: 220px; overflow-y: auto;
+    }
+
+    /* ── Android-style Notification Toasts ── */
+    #toast-container {
+      position: fixed; top: 20px; right: 20px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+      pointer-events: none;
+      width: 360px;
+    }
+    @media (max-width: 480px) { #toast-container { width: calc(100vw - 32px); right: 16px; } }
+
+    .toast {
+      background: rgba(18,22,30,0.92);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 14px 16px;
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.06) inset;
+      pointer-events: all;
+      cursor: pointer;
+      display: flex; gap: 12px; align-items: flex-start;
+      transform: translateX(110%);
+      transition: transform 0.42s cubic-bezier(0.34,1.4,0.64,1), opacity 0.3s;
+      opacity: 0;
+      overflow: hidden;
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.hide { transform: translateX(110%); opacity: 0; transition-timing-function: cubic-bezier(0.4,0,1,1); transition-duration: 0.3s; }
+
+    .toast-icon {
+      width: 38px; height: 38px; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .ti-red { background: linear-gradient(135deg, #c62828, #e53935); box-shadow: 0 4px 14px rgba(229,57,53,0.5); }
+    .ti-orange { background: linear-gradient(135deg, #e65100, #f57c00); box-shadow: 0 4px 14px rgba(245,124,0,0.5); }
+    .ti-yellow { background: linear-gradient(135deg, #f9a825, #fdd835); box-shadow: 0 4px 14px rgba(253,216,53,0.4); }
+    .ti-blue { background: linear-gradient(135deg, #1565c0, #1e88e5); box-shadow: 0 4px 14px rgba(30,136,229,0.5); }
+    .ti-green { background: linear-gradient(135deg, #1b5e20, #2e7d32); box-shadow: 0 4px 14px rgba(46,125,50,0.4); }
+
+    .toast-body { flex: 1; min-width: 0; }
+    .toast-app { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+    .toast-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-muted); }
+    .toast-title { font-size: 0.82rem; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .toast-msg { font-size: 0.73rem; color: var(--text-dim); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .toast-dismiss {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: var(--text-muted); font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s;
+      margin-top: 2px;
+    }
+    .toast-dismiss:hover { background: rgba(255,255,255,0.12); }
+
+    .toast-progress {
+      position: absolute; bottom: 0; left: 0; height: 2px;
+      border-radius: 0 0 18px 18px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      animation: toast-countdown var(--duration, 6s) linear forwards;
+    }
+    @keyframes toast-countdown { from { width: 100%; } to { width: 0%; } }
+
+    /* ── Sound toggle ── */
+    .sound-toggle {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.78rem; color: var(--text-dim);
+      cursor: pointer; user-select: none;
+    }
+    .toggle-track {
+      width: 38px; height: 22px; border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--glass-border);
+      position: relative; transition: background 0.2s;
+      cursor: pointer;
+    }
+    .toggle-track.on { background: rgba(59,140,248,0.4); border-color: rgba(59,140,248,0.5); }
+    .toggle-thumb {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--text-dim); position: absolute;
+      top: 2px; left: 2px;
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .toggle-track.on .toggle-thumb { transform: translateX(16px); background: #fff; }
+
+    /* ── History tab ── */
+    .tabs { display: flex; gap: 4px; padding: 14px 22px 0; }
+    .tab {
+      padding: 8px 16px; border-radius: 10px 10px 0 0;
+      font-size: 0.78rem; font-weight: 500; cursor: pointer;
+      color: var(--text-muted); transition: all 0.18s;
+      border: 1px solid transparent; border-bottom: none;
+    }
+    .tab.active {
+      background: rgba(59,140,248,0.12);
+      border-color: rgba(59,140,248,0.25);
+      color: var(--blue);
+    }
+
+    .loading-spinner {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--glass-border);
+      border-top-color: var(--blue);
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-spinner.show { display: block; }
+
+    .refresh-info { font-size: 0.7rem; color: var(--text-muted); }
+
+    /* Scrollbar global */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Real Weather Radar & Warnings (always searching for new alerts!)</h1>
-        <button class="go-back-button" onclick="window.location.href='index.html'">Go Back to Home</button>
-    </header>
-    <div class="container">
-        <div class="search-container">
-            <input type="text" id="state-input" placeholder="Enter state (e.g., CA)">
-            <button onclick="searchWarnings()">Search State</button>
-            <button onclick="viewAllWarnings()">View All Warnings</button>
+
+<div class="orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-top">
+      <div class="modal-event" id="modal-event">—</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-badges" id="modal-badges"></div>
+    <div class="modal-row">
+      <div class="modal-row-label">Area</div>
+      <div class="modal-row-value" id="modal-area">—</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Effective</div>
+      <div class="modal-row-value" id="modal-effective">—</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Expires</div>
+      <div class="modal-row-value" id="modal-expires">—</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Sender</div>
+      <div class="modal-row-value" id="modal-sender">—</div>
+    </div>
+    <div class="modal-row">
+      <div class="modal-row-label">Description</div>
+      <pre class="modal-desc" id="modal-desc">—</pre>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🌩</div>
+      <div class="logo-text">
+        <h1>StormWatch</h1>
+        <span>Live Radar &amp; Alerts</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div> Live</div>
+      <div class="sound-toggle" onclick="toggleSound()">
+        <span>🔔</span>
+        <div class="toggle-track" id="sound-track">
+          <div class="toggle-thumb"></div>
         </div>
-        <div class="radar">
-            <h2>Live Radar</h2>
-            <iframe
-                src="https://www.rainviewer.com/map.html?loc=39.8283,-98.5795,4&oFa=0&oC=0&oU=0&oCS=1&oF=0&oAP=1&c=1&o=83&lm=1&layer=radar&sm=1&sn=1"
-                width="100%"
-                height="400"
-                frameborder="0"
-                style="border-radius: 8px;"
-            ></iframe>
+      </div>
+      <button class="btn btn-sm" onclick="window.location.href='index.html'">← Home</button>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Extreme</div>
+      <div class="stat-value sv-red" id="stat-extreme">—</div>
+      <div class="stat-sub">Immediate danger</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Severe</div>
+      <div class="stat-value sv-orange" id="stat-severe">—</div>
+      <div class="stat-sub">Significant risk</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Moderate</div>
+      <div class="stat-value sv-yellow" id="stat-moderate">—</div>
+      <div class="stat-sub">Be prepared</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Active</div>
+      <div class="stat-value sv-blue" id="stat-total">—</div>
+      <div class="stat-sub">Across the US</div>
+    </div>
+  </div>
+
+  <!-- Search + Filters -->
+  <div class="card" style="padding: 18px 20px;">
+    <div class="search-row">
+      <div class="search-glass">
+        <span class="icon">🔍</span>
+        <input type="text" id="state-input" placeholder="State code (e.g. PA, CA, TX)…" maxlength="2" />
+      </div>
+      <button class="btn btn-primary" onclick="searchState()">Search State</button>
+      <button class="btn" onclick="loadAllAlerts()">All US Alerts</button>
+      <div class="loading-spinner" id="spinner"></div>
+      <div class="refresh-info" id="refresh-info">Auto-refreshes every 60s</div>
+    </div>
+    <div style="margin-top: 12px;">
+      <div class="filter-chips">
+        <div class="chip all active" onclick="filterAlerts('all', this)">All</div>
+        <div class="chip" onclick="filterAlerts('extreme', this)">🔴 Extreme</div>
+        <div class="chip" onclick="filterAlerts('severe', this)">🟠 Severe</div>
+        <div class="chip" onclick="filterAlerts('moderate', this)">🟡 Moderate</div>
+        <div class="chip" onclick="filterAlerts('minor', this)">🔵 Minor</div>
+        <div class="chip" onclick="filterAlerts('tornado', this)">🌪 Tornado</div>
+        <div class="chip" onclick="filterAlerts('flood', this)">🌊 Flood</div>
+        <div class="chip" onclick="filterAlerts('thunder', this)">⚡ Thunder</div>
+        <div class="chip" onclick="filterAlerts('winter', this)">❄️ Winter</div>
+        <div class="chip" onclick="filterAlerts('wind', this)">💨 Wind</div>
+        <div class="chip" onclick="filterAlerts('fire', this)">🔥 Fire</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="main-grid">
+    <!-- Radar -->
+    <div class="card radar-wrap">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="card-icon ci-blue">📡</div>
+          Live Radar
         </div>
-        <div class="alerts">
-            <h2>Weather Alerts</h2>
-            <ul id="alerts-list">
-                <li>Enter a state or click "View All Warnings" to see alerts.</li>
-            </ul>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="setRadarLayer('radar')">Radar</button>
+          <button class="btn btn-sm" onclick="setRadarLayer('satellite')">Satellite</button>
+          <button class="btn btn-sm" onclick="setRadarLayer('pressure')">Pressure</button>
         </div>
+      </div>
+      <div class="radar-controls">
+        <button class="btn btn-sm" onclick="setZoom(4)">🗺 Full US</button>
+        <button class="btn btn-sm" onclick="setZoom(6)">Regional</button>
+        <button class="btn btn-sm" onclick="locateMe()">📍 Near Me</button>
+      </div>
+      <iframe id="radar-frame"
+        src="https://www.rainviewer.com/map.html?loc=39.8283,-98.5795,4&oFa=0&oC=0&oU=0&oCS=1&oF=0&oAP=1&c=1&o=83&lm=1&layer=radar&sm=1&sn=1"
+        allowfullscreen></iframe>
     </div>
 
-    <!-- Warning Popup -->
-    <div class="warning-popup" id="warning-popup">
-        <strong>New Weather Alert!</strong>
-        <p id="warning-message"></p>
+    <!-- Alerts Sidebar -->
+    <div class="card alerts-panel">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('active', this)">Active</div>
+        <div class="tab" onclick="switchTab('history', this)">History</div>
+      </div>
+      <div class="card-header" style="border-top: 1px solid var(--glass-border);">
+        <div class="card-title">
+          <div class="card-icon ci-red">⚠️</div>
+          <span id="alerts-title">Weather Alerts</span>
+        </div>
+        <span class="count-badge" id="alert-count">0</span>
+      </div>
+      <div class="alerts-list" id="alerts-list">
+        <div class="no-alerts">
+          <span>🌤</span>
+          Search a state or load all alerts to begin.
+        </div>
+      </div>
+      <div class="alerts-footer">
+        <span id="last-updated">Not yet updated</span>
+        <button class="btn btn-sm" onclick="loadAllAlerts()">↻ Refresh</button>
+      </div>
     </div>
+  </div>
 
-    <!-- State Alerts Modal -->
-    <div class="state-alerts-modal" id="state-alerts-modal">
-        <button onclick="closeStateAlertsModal()">Close</button>
-        <h2 id="state-alerts-title"></h2>
-        <ul id="state-alerts-list"></ul>
-    </div>
+</div>
 
-    <!-- Rate Limit Warning -->
-    <div class="rate-limit-warning" id="rate-limit-warning">
-        ⚠️ Rate Limited by NWS API. Please wait...
-    </div>
+<!-- Audio -->
+<audio id="alert-audio" preload="none">
+  <source src="amber-alert-made-with-Voicemod.mp3" type="audio/mpeg">
+</audio>
 
-    <!-- Audio Element for Alert Sound -->
-    <audio id="alert-sound">
-        <source src="amber-alert-made-with-Voicemod.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+<script>
+  // ── State ───────────────────────────────────────────────
+  let allAlerts = [];
+  let alertHistory = [];
+  let seenIds = new Set();
+  let currentFilter = 'all';
+  let currentTab = 'active';
+  let soundEnabled = false;
+  let refreshTimer = null;
+  let currentState = null;
+  let radarLat = 39.8283, radarLng = -98.5795, radarZoom = 4;
+  let currentLayer = 'radar';
 
-    <script>
-        let lastAlertId = null; // Track the last alert ID to detect new alerts
+  // ── Ripple Effect ──────────────────────────────────────
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.btn, .chip, .tab, .alert-item');
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const size = Math.max(rect.width, rect.height) * 1.5;
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;`;
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 560);
+  });
 
-        // Fetch Weather Alerts by State
-        async function fetchWeatherAlerts(state) {
-            const url = `https://api.weather.gov/alerts/active?area=${state}`;
-            try {
-                const response = await fetch(url);
-                if (response.status === 429) {
-                    showRateLimitWarning();
-                    return;
-                }
-                const data = await response.json();
-                showStateAlertsModal(state, data.features);
-            } catch (error) {
-                console.error("Error fetching weather alerts:", error);
-                alert("Failed to load weather alerts for the state.");
-            }
-        }
+  // ── Sound toggle ──────────────────────────────────────
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('sound-track').classList.toggle('on', soundEnabled);
+  }
 
-        // Fetch All Weather Alerts
-        async function fetchAllWeatherAlerts() {
-            const url = "https://api.weather.gov/alerts/active?status=actual&message_type=alert";
-            try {
-                const response = await fetch(url);
-                if (response.status === 429) {
-                    showRateLimitWarning();
-                    return;
-                }
-                const data = await response.json();
-                displayAlerts(data.features);
-                checkForNewAlerts(data.features);
-            } catch (error) {
-                console.error("Error fetching weather alerts:", error);
-                document.getElementById("alerts-list").innerHTML = "<li>Failed to load weather alerts.</li>";
-            }
-        }
+  // ── Severity helpers ─────────────────────────────────
+  function getSeverity(alert) {
+    const sev = (alert.properties.severity || '').toLowerCase();
+    const evt = (alert.properties.event || '').toLowerCase();
+    if (sev === 'extreme' || evt.includes('tornado warning') || evt.includes('tsunami')) return 'extreme';
+    if (sev === 'severe' || evt.includes('severe thunderstorm') || evt.includes('hurricane')) return 'severe';
+    if (sev === 'moderate' || evt.includes('flash flood') || evt.includes('blizzard')) return 'moderate';
+    return 'minor';
+  }
 
-        // Display Alerts
-        function displayAlerts(alerts) {
-            const alertsList = document.getElementById("alerts-list");
-            alertsList.innerHTML = "";
+  const sevBarClass = { extreme: 'sev-extreme', severe: 'sev-severe', moderate: 'sev-moderate', minor: 'sev-minor', unknown: 'sev-unknown' };
+  const sevTagClass = { extreme: 'tag-extreme', severe: 'tag-severe', moderate: 'tag-moderate', minor: 'tag-minor', unknown: 'tag-unknown' };
+  const sevLabel = { extreme: '🔴 Extreme', severe: '🟠 Severe', moderate: '🟡 Moderate', minor: '🔵 Minor', unknown: '⚪ Unknown' };
+  const toastIconClass = { extreme: 'ti-red', severe: 'ti-orange', moderate: 'ti-yellow', minor: 'ti-blue' };
+  const toastEmoji = { extreme: '🚨', severe: '⚠️', moderate: '⚡', minor: 'ℹ️' };
 
-            if (alerts.length === 0) {
-                alertsList.innerHTML = "<li>No active weather alerts found.</li>";
-                return;
-            }
+  // ── Filter ────────────────────────────────────────────
+  function filterAlerts(type, el) {
+    currentFilter = type;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderAlerts();
+  }
 
-            alerts.forEach(alert => {
-                const event = alert.properties.event;
-                const description = alert.properties.description;
-                const effective = new Date(alert.properties.effective).toLocaleString();
-                const expires = new Date(alert.properties.expires).toLocaleString();
+  function applyFilter(alerts) {
+    if (currentFilter === 'all') return alerts;
+    const typeMap = {
+      extreme: a => getSeverity(a) === 'extreme',
+      severe: a => getSeverity(a) === 'severe',
+      moderate: a => getSeverity(a) === 'moderate',
+      minor: a => getSeverity(a) === 'minor',
+      tornado: a => (a.properties.event||'').toLowerCase().includes('tornado'),
+      flood: a => (a.properties.event||'').toLowerCase().includes('flood'),
+      thunder: a => (a.properties.event||'').toLowerCase().includes('thunderstorm'),
+      winter: a => /winter|snow|blizzard|ice storm/i.test(a.properties.event||''),
+      wind: a => /wind|gale/i.test(a.properties.event||''),
+      fire: a => /fire|red flag/i.test(a.properties.event||''),
+    };
+    return typeMap[currentFilter] ? alerts.filter(typeMap[currentFilter]) : alerts;
+  }
 
-                const alertItem = document.createElement("li");
-                alertItem.innerHTML = `
-                    <strong>${event}</strong><br>
-                    <small>Effective: ${effective}</small><br>
-                    <small>Expires: ${expires}</small><br>
-                    <p>${description}</p>
-                `;
-                alertsList.appendChild(alertItem);
-            });
-        }
+  // ── Render Alerts ─────────────────────────────────────
+  function renderAlerts() {
+    const list = document.getElementById('alerts-list');
+    const source = currentTab === 'history' ? alertHistory : allAlerts;
+    const filtered = applyFilter(source);
 
-        // Check for New Alerts
-        function checkForNewAlerts(alerts) {
-            if (alerts.length > 0) {
-                const latestAlertId = alerts[0].id; // Get the ID of the latest alert
-                if (latestAlertId !== lastAlertId) {
-                    lastAlertId = latestAlertId; // Update the last alert ID
-                    showWarningPopup(alerts[0]); // Show a popup for the new alert
-                    playAlertSound(); // Play the alert sound
-                }
-            }
-        }
+    document.getElementById('alert-count').textContent = filtered.length;
 
-        // Show Warning Popup
-        function showWarningPopup(alert) {
-            const popup = document.getElementById("warning-popup");
-            const message = document.getElementById("warning-message");
-            message.textContent = `${alert.properties.event}: ${alert.properties.description}`;
-            popup.classList.add("show");
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="no-alerts"><span>${currentTab === 'history' ? '📂' : '✅'}</span>${currentTab === 'history' ? 'No history yet.' : 'No alerts match this filter.'}</div>`;
+      return;
+    }
 
-            // Hide the popup after 10 seconds
-            setTimeout(() => {
-                popup.classList.remove("show");
-            }, 10000);
-        }
+    list.innerHTML = '';
+    filtered.forEach((alert, i) => {
+      const sev = getSeverity(alert);
+      const event = alert.properties.event || 'Unknown Event';
+      const area = alert.properties.areaDesc || 'Unknown Area';
+      const exp = alert.properties.expires ? new Date(alert.properties.expires).toLocaleString('en-US', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
 
-        // Play Alert Sound
-        function playAlertSound() {
-            const alertSound = document.getElementById("alert-sound");
-            alertSound.play();
-        }
+      const item = document.createElement('div');
+      item.className = 'alert-item';
+      item.style.animationDelay = `${i * 30}ms`;
+      item.innerHTML = `
+        <div class="alert-severity ${sevBarClass[sev] || sevBarClass.unknown}"></div>
+        <div class="alert-content">
+          <div class="alert-event">${event}</div>
+          <div class="alert-meta">
+            <span class="alert-tag ${sevTagClass[sev] || sevTagClass.unknown}">${sevLabel[sev]}</span>
+            <span>⏱ ${exp}</span>
+          </div>
+          <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${area}</div>
+        </div>
+      `;
+      item.onclick = () => openModal(alert);
+      list.appendChild(item);
+    });
+  }
 
-        // Show Rate Limit Warning
-        function showRateLimitWarning() {
-            const warning = document.getElementById("rate-limit-warning");
-            warning.classList.add("show");
+  // ── Update Stats ──────────────────────────────────────
+  function updateStats(alerts) {
+    const counts = { extreme: 0, severe: 0, moderate: 0 };
+    alerts.forEach(a => {
+      const s = getSeverity(a);
+      if (counts[s] !== undefined) counts[s]++;
+    });
+    document.getElementById('stat-extreme').textContent = counts.extreme;
+    document.getElementById('stat-severe').textContent = counts.severe;
+    document.getElementById('stat-moderate').textContent = counts.moderate;
+    document.getElementById('stat-total').textContent = alerts.length;
+  }
 
-            // Hide the warning after 10 seconds
-            setTimeout(() => {
-                warning.classList.remove("show");
-            }, 10000);
-        }
+  // ── Fetch ─────────────────────────────────────────────
+  async function fetchAlerts(url) {
+    const spinner = document.getElementById('spinner');
+    spinner.classList.add('show');
+    try {
+      const res = await fetch(url, { headers: { 'Accept': 'application/geo+json' } });
+      if (res.status === 429) { showToast('Rate Limited', 'NWS API is throttling requests. Retrying soon.', 'moderate'); return null; }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      showToast('Fetch Error', 'Could not reach NWS API. Check your connection.', 'severe');
+      return null;
+    } finally {
+      spinner.classList.remove('show');
+    }
+  }
 
-        // Search Warnings by State
-        function searchWarnings() {
-            const state = document.getElementById("state-input").value.trim().toUpperCase();
-            if (state.length === 2) {
-                fetchWeatherAlerts(state);
-            } else {
-                alert("Please enter a valid 2-letter state code (e.g., CA for California).");
-            }
-        }
+  async function loadAllAlerts() {
+    const data = await fetchAlerts('https://api.weather.gov/alerts/active?status=actual&message_type=alert&limit=500');
+    if (!data) return;
+    currentState = null;
+    document.getElementById('alerts-title').textContent = 'All US Alerts';
+    processAlerts(data.features || []);
+  }
 
-        // View All Warnings
-        function viewAllWarnings() {
-            fetchAllWeatherAlerts();
-        }
+  async function searchState() {
+    const state = document.getElementById('state-input').value.trim().toUpperCase();
+    if (state.length !== 2) { showToast('Invalid Input', 'Enter a 2-letter state code like PA or CA.', 'moderate'); return; }
+    const data = await fetchAlerts(`https://api.weather.gov/alerts/active?area=${state}&status=actual&message_type=alert`);
+    if (!data) return;
+    currentState = state;
+    document.getElementById('alerts-title').textContent = `Alerts — ${state}`;
+    processAlerts(data.features || []);
+  }
 
-        // Show State Alerts Modal
-        function showStateAlertsModal(state, alerts) {
-            const modal = document.getElementById("state-alerts-modal");
-            const title = document.getElementById("state-alerts-title");
-            const alertsList = document.getElementById("state-alerts-list");
+  function processAlerts(features) {
+    // Detect new
+    const newOnes = features.filter(f => !seenIds.has(f.id));
+    newOnes.forEach(f => {
+      seenIds.add(f.id);
+      const sev = getSeverity(f);
+      if (sev === 'extreme' || sev === 'severe') {
+        showToast(f.properties.event || 'Alert', f.properties.headline || f.properties.areaDesc || '', sev);
+        if (soundEnabled) { try { document.getElementById('alert-audio').play(); } catch (_) {} }
+      }
+      alertHistory.unshift(f);
+    });
+    if (alertHistory.length > 100) alertHistory = alertHistory.slice(0, 100);
 
-            title.textContent = `Weather Alerts for ${state}`;
-            alertsList.innerHTML = "";
+    allAlerts = features;
+    updateStats(features);
+    renderAlerts();
+    document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    scheduleRefresh();
+  }
 
-            if (alerts.length === 0) {
-                alertsList.innerHTML = "<li>No active weather alerts found for this state.</li>";
-            } else {
-                alerts.forEach(alert => {
-                    const event = alert.properties.event;
-                    const description = alert.properties.description;
-                    const effective = new Date(alert.properties.effective).toLocaleString();
-                    const expires = new Date(alert.properties.expires).toLocaleString();
+  // ── Auto-refresh ──────────────────────────────────────
+  function scheduleRefresh() {
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(() => {
+      if (currentState) searchState();
+      else loadAllAlerts();
+    }, 60000);
+  }
 
-                    const alertItem = document.createElement("li");
-                    alertItem.innerHTML = `
-                        <strong>${event}</strong><br>
-                        <small>Effective: ${effective}</small><br>
-                        <small>Expires: ${expires}</small><br>
-                        <p>${description}</p>
-                    `;
-                    alertsList.appendChild(alertItem);
-                });
-            }
+  // ── Toast Notifications ───────────────────────────────
+  function showToast(title, msg, severity = 'minor', duration = 7000) {
+    const container = document.getElementById('toast-container');
+    const iconClass = toastIconClass[severity] || 'ti-blue';
+    const emoji = toastEmoji[severity] || 'ℹ️';
 
-            modal.classList.add("show");
-        }
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.setProperty('--duration', duration / 1000 + 's');
+    toast.innerHTML = `
+      <div class="toast-icon ${iconClass}">${emoji}</div>
+      <div class="toast-body">
+        <div class="toast-app"><div class="toast-dot"></div> StormWatch <span style="margin-left:auto;">${new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</span></div>
+        <div class="toast-title">${title}</div>
+        <div class="toast-msg">${msg}</div>
+      </div>
+      <div class="toast-dismiss" onclick="dismissToast(this.closest('.toast'))">✕</div>
+      <div class="toast-progress"></div>
+    `;
+    container.appendChild(toast);
+    requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+    setTimeout(() => dismissToast(toast), duration);
+  }
 
-        // Close State Alerts Modal
-        function closeStateAlertsModal() {
-            const modal = document.getElementById("state-alerts-modal");
-            modal.classList.remove("show");
-        }
+  function dismissToast(toast) {
+    if (!toast) return;
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+    setTimeout(() => toast.remove(), 350);
+  }
 
-        // Periodically Check for New Alerts (every 1 second)
-        setInterval(fetchAllWeatherAlerts, 1000); // 1000 ms = 1 second
+  // ── Modal ─────────────────────────────────────────────
+  function openModal(alert) {
+    const p = alert.properties;
+    const sev = getSeverity(alert);
+    document.getElementById('modal-event').textContent = p.event || '—';
+    document.getElementById('modal-area').textContent = p.areaDesc || '—';
+    document.getElementById('modal-effective').textContent = p.effective ? new Date(p.effective).toLocaleString() : '—';
+    document.getElementById('modal-expires').textContent = p.expires ? new Date(p.expires).toLocaleString() : '—';
+    document.getElementById('modal-sender').textContent = p.senderName || '—';
+    document.getElementById('modal-desc').textContent = (p.description || p.headline || 'No description available.').trim();
+    document.getElementById('modal-badges').innerHTML = `
+      <span class="alert-tag ${sevTagClass[sev] || sevTagClass.unknown}">${sevLabel[sev]}</span>
+      ${p.certainty ? `<span class="alert-tag tag-unknown">Certainty: ${p.certainty}</span>` : ''}
+      ${p.urgency ? `<span class="alert-tag tag-unknown">Urgency: ${p.urgency}</span>` : ''}
+      ${p.response ? `<span class="alert-tag tag-unknown">Response: ${p.response}</span>` : ''}
+    `;
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 
-        // Fetch Alerts on Page Load
-        fetchAllWeatherAlerts();
-    </script>
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  // ── Radar controls ────────────────────────────────────
+  function updateRadar() {
+    document.getElementById('radar-frame').src =
+      `https://www.rainviewer.com/map.html?loc=${radarLat},${radarLng},${radarZoom}&oFa=0&oC=0&oU=0&oCS=1&oF=0&oAP=1&c=1&o=83&lm=1&layer=${currentLayer}&sm=1&sn=1`;
+  }
+
+  function setZoom(z) { radarZoom = z; updateRadar(); }
+  function setRadarLayer(layer) { currentLayer = layer; updateRadar(); }
+
+  function locateMe() {
+    if (!navigator.geolocation) { showToast('Location', 'Geolocation not supported.', 'minor'); return; }
+    navigator.geolocation.getCurrentPosition(pos => {
+      radarLat = pos.coords.latitude.toFixed(4);
+      radarLng = pos.coords.longitude.toFixed(4);
+      radarZoom = 8;
+      updateRadar();
+      showToast('Radar Centered', 'Showing your current location.', 'minor', 4000);
+    }, () => showToast('Location Denied', 'Allow location access to center radar.', 'moderate'));
+  }
+
+  // ── Tab switch ────────────────────────────────────────
+  function switchTab(tab, el) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderAlerts();
+  }
+
+  // ── Keyboard ──────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Enter' && document.activeElement.id === 'state-input') searchState();
+  });
+
+  // ── Init ──────────────────────────────────────────────
+  loadAllAlerts();
+</script>
+
 </body>
 </html>
