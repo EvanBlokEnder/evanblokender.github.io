@@ -821,35 +821,22 @@
   }
 
   // ── Fetch ─────────────────────────────────────────────
-  async function fetchAlerts(url, retries = 2) {
+  async function fetchAlerts(url) {
     const spinner = document.getElementById('spinner');
     spinner.classList.add('show');
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        const res = await fetch(url, {
-          headers: { 'Accept': 'application/geo+json', 'User-Agent': 'StormWatch/1.0' },
-          signal: controller.signal
-        });
-        clearTimeout(timeout);
-        if (res.status === 429) {
-          showToast('Rate Limited', 'NWS API is throttling. Auto-retrying in 60s.', 'moderate');
-          spinner.classList.remove('show');
-          return null;
-        }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        spinner.classList.remove('show');
-        return await res.json();
-      } catch (e) {
-        if (attempt < retries) {
-          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
-          continue;
-        }
-        showToast('Connection Error', 'Could not reach NWS. Check your connection and try again.', 'severe');
-        spinner.classList.remove('show');
+    try {
+      const res = await fetch(url);
+      spinner.classList.remove('show');
+      if (res.status === 429) {
+        showToast('Rate Limited', 'NWS API is throttling. Auto-retrying in 60s.', 'moderate');
         return null;
       }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      spinner.classList.remove('show');
+      showToast('Connection Error', 'Could not reach NWS API. Check your connection.', 'severe');
+      return null;
     }
   }
 
