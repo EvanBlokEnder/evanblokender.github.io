@@ -214,7 +214,7 @@
         <p>Select which Beat Saber stats you want to view:</p>
         <div style="display:flex; gap:20px; flex-wrap: wrap; justify-content:center;">
             <div>
-                <button id="scoresaber" class="button disabled">Scoresaber</button>
+                <button id="scoresaber" class="button">Scoresaber</button>
             </div>
             <div>
                 <button id="beatleader" class="button">BeatLeader</button>
@@ -243,15 +243,16 @@
     const hamburger = document.getElementById('hamburger');
     const navList = document.getElementById('nav-list');
 
-    if(isGreyedOut) {
-        scoresaberBtn.classList.add('disabled');
-    }
-
+   
     beatleaderBtn.addEventListener('click', () => {
         embedIframe.src = "https://beatleader.com/u/evanblokender";
         embedContainer.style.display = "flex";
     });
-
+   
+scoresaberBtn.addEventListener('click', () => {
+        embedIframe.src = "https://scoresaber.com/u/76561199188357985";
+        embedContainer.style.display = "flex";
+    });
     closeBtn.addEventListener('click', () => {
         embedContainer.style.display = "none";
         embedIframe.src = "";
