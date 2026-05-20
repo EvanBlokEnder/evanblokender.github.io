@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Universal ImGui C++ Extension Docs</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: #0e1b2f;
+      --text: #e7f2ff;
+      --muted: #9db1c8;
+      --accent: #35b7ff;
+      --line: #1c3857;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top left, #12345a, var(--bg) 42rem);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 18px 56px;
+    }
+    h1, h2 { line-height: 1.15; }
+    h1 { font-size: 34px; margin: 0 0 10px; }
+    h2 { margin-top: 30px; color: #d8f2ff; }
+    p, li { color: var(--muted); }
+    .panel {
+      background: color-mix(in srgb, var(--panel), transparent 8%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 18px 0;
+    }
+    code, pre {
+      font-family: Consolas, Menlo, monospace;
+      background: #06101d;
+      border: 1px solid #18304c;
+      border-radius: 6px;
+    }
+    code { padding: 2px 5px; color: #bde9ff; }
+    pre { overflow: auto; padding: 14px; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Universal ImGui C++ Extensions</h1>
+  <p>Create small C++ extension files from the Extensions tab, save them as <code>.cpp</code>, and use them as native add-ons for game-specific hooks, tools, UI buttons, sliders, and tooltips.</p>
+
+  <section class="panel">
+    <h2>Where Files Go</h2>
+    <p>hi</code>.</p>
+  </section>
+
+  <h2>Extension Shape</h2>
+  <p>An extension can expose lifecycle functions. A loader or bridge can call these after the extension source is compiled into the native mod.</p>
+  <pre><code>#include "BNMResolve.hpp"
+#include "Settings.hpp"
+
+extern "C" void OnExtensionLoad() {
+    // Set up hooks, find classes, or create state here.
+}
+
+extern "C" void OnExtensionTick() {
+    // Per-frame game logic goes here.
+}</code></pre>
+
+  <h2>Choosing A Game</h2>
+  <p>Use the Target Game slider in the Extensions tab to label the extension for Any Game, Gorilla Tag, Project Demigod, or a custom package. The label is saved into the generated file header so you can tell which hooks belong to which game.</p>
+
+  <h2>Adding Buttons, Sliders, And Tooltips</h2>
+  <p>Use normal ImGui controls inside your extension UI function or bridge. Give every risky action a clear tooltip so the menu explains what it will do before you press it.</p>
+  <pre><code>void DrawMyExtensionUi() {
+    static bool enabled = false;
+    if (ImGui::Checkbox("Enable Hook", &enabled) && enabled) {
+        OnExtensionLoad();
+    }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("Turns on this extension hook for the selected game.");
+    }
+
+    static float power = 1.0f;
+    ImGui::SliderFloat("Power", &power, 0.0f, 10.0f);
+}</code></pre>
+
+  <h2>Running Extensions</h2>
+  <p>The Run button saves the current source and tries to send it to an in-game object named <code>CppExtensionRunner</code>, <code>ExtensionRunner</code>, or <code>UniversalExtensionRunner</code> with a <code>RunCppExtension(string source)</code> receiver. Native C++ hooks still need to be compiled into the mod or handled by your own bridge.</p>
+
+  <h2>Hooking Tips</h2>
+  <ul>
+    <li>Keep game-specific class lookups behind the selected target game check.</li>
+    <li>Prefer <code>BNM::Class</code>, <code>BNM::Method</code>, and typed wrappers from <code>BNMResolve.hpp</code>.</li>
+    <li>Guard hooks and object edits with null checks so scene changes do not crash the game.</li>
+    <li>Save often from the Extensions tab; the file list reloads from disk.</li>
+  </ul>
+
+</main>
+</body>
+</html>
