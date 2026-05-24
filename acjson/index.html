@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>json maker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="xmod Json Maker V9">
+  <meta property="og:description" content="Xmod Json maker V9 - Liquid Glass Edition">
+  <meta name="theme-color" content="#00ffaa">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --glass-bg: rgba(255,255,255,0.07);
+      --glass-border: rgba(255,255,255,0.18);
+      --glass-highlight: rgba(255,255,255,0.22);
+      --glass-shadow: rgba(0,0,0,0.45);
+      --accent: #00ffaa;
+      --accent2: #00c8ff;
+      --accent3: #7b61ff;
+      --danger: #ff4466;
+      --warn: #ffaa00;
+      --info: #00c8ff;
+      --text: #e8f0ff;
+      --text-dim: rgba(232,240,255,0.55);
+      --bg-base: #0a0c14;
+      --bg-deep: #060810;
+      --ripple: rgba(0,255,170,0.28);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Oxanium', sans-serif;
+      background: var(--bg-base);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0,200,255,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 80%, rgba(123,97,255,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0,255,170,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bgShift 18s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0.7; transform: scale(1.06); }
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(60px);
+      animation: orbFloat linear infinite;
+      opacity: 0.35;
+    }
+    .orb-1 { width:340px;height:340px;background:radial-gradient(circle,rgba(0,255,170,0.5),transparent 70%); top:-80px;left:-60px;animation-duration:22s;animation-delay:-5s; }
+    .orb-2 { width:260px;height:260px;background:radial-gradient(circle,rgba(0,200,255,0.45),transparent 70%); top:40%;right:-80px;animation-duration:28s;animation-delay:-12s; }
+    .orb-3 { width:200px;height:200px;background:radial-gradient(circle,rgba(123,97,255,0.5),transparent 70%); bottom:10%;left:20%;animation-duration:19s;animation-delay:-8s; }
+    @keyframes orbFloat {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%      { transform: translate(30px,-40px) scale(1.08); }
+      66%      { transform: translate(-20px,30px) scale(0.94); }
+    }
+
+    /* Page wrapper */
+    .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+
+    /* Header */
+    .site-header {
+      text-align: center;
+      padding: 32px 0 24px;
+      position: relative;
+    }
+    .site-header h1 {
+      font-family: 'Oxanium', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 18px rgba(0,255,170,0.4));
+      margin-bottom: 4px;
+    }
+    .site-header .tagline {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    /* Glass card */
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      box-shadow:
+        0 8px 32px var(--glass-shadow),
+        inset 0 1px 0 var(--glass-highlight),
+        inset 0 -1px 0 rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      pointer-events: none;
+    }
+    .glass-card:hover {
+      box-shadow:
+        0 12px 48px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.3),
+        0 0 0 1px rgba(0,255,170,0.15);
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* Section collapse */
+    .collapse-toggle {
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .collapse-toggle .chevron {
+      width: 14px; height: 14px;
+      border-right: 2px solid var(--accent);
+      border-bottom: 2px solid var(--accent);
+      transform: rotate(45deg);
+      transition: transform 0.25s;
+      flex-shrink: 0;
+    }
+    .collapse-toggle.collapsed .chevron { transform: rotate(-45deg); }
+    .collapsible { transition: max-height 0.35s ease, opacity 0.3s; overflow: hidden; }
+    .collapsible.hidden { max-height: 0 !important; opacity: 0; }
+
+    /* Input row */
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    /* Search */
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+    }
+    .search-wrapper .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    input#search-bar {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+    }
+
+    /* Inputs & Selects */
+    input[type="text"], input[type="number"], input[type="file"], select, textarea {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Oxanium', sans-serif;
+      font-size: 0.92rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      backdrop-filter: blur(8px);
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      background: rgba(0,255,170,0.06);
+      box-shadow: 0 0 0 3px rgba(0,255,170,0.15), inset 0 0 12px rgba(0,255,170,0.04);
+    }
+    select {
+      cursor: pointer;
+      flex: 1;
+      min-width: 160px;
+      max-width: 340px;
+    }
+    select option {
+      background: #111827;
+      color: var(--text);
+    }
+    input[type="range"] {
+      accent-color: var(--accent);
+      cursor: pointer;
+      height: 4px;
+      border-radius: 4px;
+    }
+    input[type="number"] { width: 80px; }
+
+    /* Ripple button */
+    .btn {
+      position: relative;
+      overflow: hidden;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Oxanium', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      padding: 10px 20px;
+      transition: transform 0.15s, box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { transform: scale(0.955); }
+    .btn::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: var(--ripple);
+      width: 0; height: 0;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 1;
+      pointer-events: none;
+    }
+    .btn.rippling::after {
+      animation: rippleAnim 0.55s ease-out forwards;
+    }
+    @keyframes rippleAnim {
+      0%   { width: 0; height: 0; transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
+      100% { width: 260px; height: 260px; transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00cc88, #00ffaa);
+      color: #051a10;
+      box-shadow: 0 4px 18px rgba(0,255,170,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 28px rgba(0,255,170,0.5); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.13); }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #cc1133, #ff4466);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(255,50,80,0.35);
+    }
+    .btn-info {
+      background: linear-gradient(135deg, #0066cc, #00c8ff);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(0,200,255,0.35);
+    }
+    .btn-warn {
+      background: linear-gradient(135deg, #cc7700, #ffaa00);
+      color: #1a0e00;
+      box-shadow: 0 4px 14px rgba(255,170,0,0.3);
+    }
+    .btn-purple {
+      background: linear-gradient(135deg, #5533cc, #7b61ff);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(123,97,255,0.35);
+    }
+    .btn-icon { border-radius: 50%; width: 36px; height: 36px; padding: 0; display:inline-flex;align-items:center;justify-content:center; font-size:1rem; }
+
+    /* Checkbox / toggle */
+    .check-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .check-wrap input[type="checkbox"] {
+      width: 20px; height: 20px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Slider row */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+    }
+    .slider-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      min-width: 170px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .slider-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      min-width: 50px;
+      text-align: right;
+    }
+    .slider-row input[type="range"] { flex: 1; }
+
+    /* Color preview */
+    .color-preview-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 10px;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .preview-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+    .preview-item-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    #dispItem {
+      width: 80px;
+      border-radius: 8px;
+      display: block;
+    }
+    #overlayM {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+
+    /* JSON preview bar */
+    #kb {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      padding: 14px 18px;
+      background: rgba(0,255,170,0.05);
+      border: 1px solid rgba(0,255,170,0.2);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Root container */
+    #rootContainer { margin-top: 8px; }
+
+    .slot-root {
+      margin-bottom: 12px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 12px 16px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 4px 20px var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+    }
+    .slot-root::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      pointer-events: none;
+    }
+    .slot-root:hover { border-color: rgba(0,255,170,0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,255,170,0.12); }
+
+    /* Item label */
+    .itemCl {
+      display: block;
+      margin-left: 18px;
+      margin-top: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      font-size: 0.86rem;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .itemCl::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      pointer-events: none;
+    }
+    .itemCl:hover { background: rgba(255,255,255,0.09); border-color: rgba(0,255,170,0.25); }
+    .mRoot {
+      background: var(--glass-bg) !important;
+      border: 1px solid var(--glass-border) !important;
+      margin-left: 0 !important;
+      border-radius: 16px !important;
+      margin-bottom: 12px;
+      padding: 12px 16px !important;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 200;
+      inset: 0;
+      background: rgba(6,8,16,0.72);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.open { display: flex; animation: modalIn 0.2s ease; }
+    @keyframes modalIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .modal-content {
+      background: rgba(14,18,30,0.9);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      padding: 26px 24px;
+      width: 320px;
+      max-width: 95vw;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.12);
+      backdrop-filter: blur(30px);
+      animation: modalSlide 0.22s cubic-bezier(.17,.67,.27,1.1);
+    }
+    @keyframes modalSlide {
+      from { transform: translateY(24px) scale(0.97); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .modal-title {
+      font-size: 0.72rem;
+      font-family: 'Space Mono', monospace;
+      color: var(--accent);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-title::before { content: ''; width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex-shrink:0; }
+    .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .modal-btn { width: 100%; }
+    .duplicate-input {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 12px;
+    }
+
+    /* Share section */
+    .file-list-item {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      margin-bottom: 6px;
+      transition: background 0.2s;
+    }
+    .file-list-item:hover { background: rgba(255,255,255,0.08); }
+    .file-list-item a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+
+    /* Help tooltip */
+    .help-btn {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.07);
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .help-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin: 14px 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,255,170,0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,170,0.5); }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .input-row { gap: 8px; }
+      select { max-width: 100%; }
+      .slider-label { min-width: 130px; font-size: 0.68rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="page">
+    <header class="site-header">
+      <h1>JSON MAKER</h1>
+      <p class="tagline">Skidded &nbsp;·&nbsp; Liquid ass Edition</p>
+    </header>
+
+    <!-- ADD ITEM CARD -->
+    <div class="glass-card">
+      <div class="card-title">
+        <span class="collapse-toggle" onclick="toggleCard(this)" data-target="addItemBody">
+          <span>Add Item</span>
+          <span class="chevron"></span>
+        </span>
+      </div>
+      <div id="addItemBody" class="collapsible" style="max-height:600px;">
+        <div class="input-row">
+          <div class="search-wrapper">
+            <span class="search-icon">🔎</span>
+            <input id="search-bar" type="text" placeholder="Search items…">
+          </div>
+        </div>
+        <div class="input-row">
+          <button class="btn btn-primary" onclick="addItem(); kbUpd();" id="addBtn">＋ Add</button>
+          <input id="Amount" type="number" value="1" min="1" placeholder="Qty">
+          <select id="item-selected" name="items">
+            <option value="item_snowboard_2">67 Snowboard</option>
+      <option value="item_ac_cola">AC Cola</option>
+      <option value="item_snowboard">AC Snowboard</option>
+      <option value="item_cutie_dead">AN152 Dead Body</option>
+      <option value="item_alien_cube">Alien Cube</option>
+      <option value="item_alphablade">Alpha Blade</option>
+      <option value="item_ampbattery">Amp Battery</option>
+      <option value="item_fish_anglerfish">Anglerfish</option>
+      <option value="item_anti_gravity_grenade">Anti Gravity Grenade</option>
+      <option value="item_apple">Apple</option>
+      <option value="item_stick_armbones">Arm Bones (Stick)</option>
+      <option value="item_arrow">Arrow</option>
+      <option value="item_backpack_space">Astronaut Backpack</option>
+      <option value="item_drill">BFD9000</option>
+      <option value="item_drill_galaxy">BFD9000-G</option>
+      <option value="item_drill_neon">BFD9000-N</option>
+      <option value="item_backpack">Backpack</option>
+      <option value="item_backpack_with_flashlight">Backpack with Flashlight</option>
+      <option value="item_balloon">Balloon</option>
+      <option value="item_bamboo_fishing_rod">Bamboo Fishing Rod</option>
+      <option value="item_banana">Banana</option>
+      <option value="item_banana_chips">Banana Chips</option>
+      <option value="item_baseball_bat">Baseball Bat</option>
+      <option value="item_basic_fishing_rod">Basic Fishing Rod</option>
+      <option value="item_landmine_bee">Bee Mine</option>
+      <option value="item_bait_beetle">Beetle</option>
+      <option value="item_shield_viking_2">Berserker Shield</option>
+      <option value="item_big_cup">Big Cup</option>
+      <option value="item_katana_big">Big Katana</option>
+      <option value="item_randombox_mobloot_big">Big Mob Loot Box</option>
+      <option value="item_fish_big_shark">Big Shark</option>
+      <option value="item_bighead_larva">BigHead Larva</option>
+      <option value="item_backpack_black">Black Backpack</option>
+      <option value="item_pelican_case">Black Crate</option>
+      <option value="item_bloodlust_vial">Bloodlust Vial</option>
+      <option value="item_brainslug_blue">Blorbo</option>
+      <option value="item_egg_easter_blue">Blue Bunny Egg</option>
+      <option value="item_fungi_blue">Blue Shroom</option>
+      <option value="item_stellarsword_blue">Blue Stellar Sword</option>
+      <option value="item_arrow_bomb">Bomb Arrow</option>
+      <option value="item_stick_bone">Bone (Stick)</option>
+      <option value="item_boombox">Boombox</option>
+      <option value="item_boomerang">Boomerang</option>
+      <option value="item_fish_boomfish">Boomfish</option>
+      <option value="item_rpg_spear">Boomspear</option>
+      <option value="item_rpg_ammo_spear">Boomspear Ammo</option>
+      <option value="item_fish_boot">Boot</option>
+      <option value="item_fish_bottled_message">Bottled Message</option>
+      <option value="item_box_fan">Box Fan</option>
+      <option value="item_quest_hlal_brain">Brain</option>
+      <option value="item_brain_chunk">Brain Matter</option>
+      <option value="item_server_pad">Broken Tablet</option>
+      <option value="item_broom">Broom</option>
+      <option value="item_bubble_gun">Bubble Gun</option>
+      <option value="item_bubble_staff">Bubble Staff</option>
+      <option value="item_burrito">Burrito</option>
+      <option value="item_butcherpipe">Butcher Pipe</option>
+      <option value="item_butcherspear">Butcher Spear</option>
+      <option value="item_butchersword">Butcher Sword</option>
+      <option value="item_ceo_plaque">CEO Plaque</option>
+      <option value="item_calculator">Calculator</option>
+      <option value="item_beans">Can of Beans</option>
+      <option value="item_hammer_candy_cane">Candy Cane Hammer</option>
+      <option value="item_metal_rod_xmas">Candy Cane Rod</option>
+      <option value="item_shield_candy_cane">Candy Cane Shield</option>
+      <option value="item_spear_candy_cane">Candy Cane Spear</option>
+      <option value="item_truss_xmas">Candy Cane Truss</option>
+      <option value="item_cardboard_box">Cardboard Box</option>
+      <option value="item_cardboard_dragon_body">Cardboard Dragon Body</option>
+      <option value="item_cardboard_dragon_head">Cardboard Dragon Head</option>
+      <option value="item_fish_carp">Carp</option>
+      <option value="item_carrot">Carrot</option>
+      <option value="item_grappling_hook">Chain Grab</option>
+      <option value="item_chakra">Chakra</option>
+      <option value="item_axe">Chaos Axe</option>
+      <option value="item_moonrock_cheesy">Cheesy Moon Rock</option>
+      <option value="item_fish_chewna">Chewna</option>
+      <option value="item_ore_hell">Cinder</option>
+      <option value="item_fish_clam_hookshot">Clam Hookshot</option>
+      <option value="item_clapper">Clapper</option>
+      <option value="item_umbrella_clover">Clover Umbrella</option>
+      <option value="item_cluster_grenade">Cluster Grenade</option>
+      <option value="item_coconut_shell">Coconut Shell</option>
+      <option value="item_cola">Cola</option>
+      <option value="item_company_ration">Company Ration</option>
+      <option value="item_company_ration_heal">Company Ration (Heal)</option>
+      <option value="item_ore_copper_m">Copper Chunk</option>
+      <option value="item_fish_cowfish">Cowfish</option>
+      <option value="item_cracker">Cracker</option>
+      <option value="item_fish_crappie">Crappie</option>
+      <option value="item_crate">Crate</option>
+      <option value="item_fish_crispie">Crispie</option>
+      <option value="item_crossbow">Crossbow</option>
+      <option value="item_crowbar">Crowbar</option>
+      <option value="item_dynamite_cube">Cube Dynamite</option>
+      <option value="item_cube_frame">Cube Frame</option>
+      <option value="item_pickaxe_cube">Cube Pickaxe</option>
+      <option value="item_cubetrident">Cube Trident</option>
+      <option value="item_fish_cube">Cursed Cubefish</option>
+      <option value="item_metal_rod_curved">Curved Metal Rod</option>
+      <option value="item_d20">D20</option>
+      <option value="item_disc">DVD</option>
+      <option value="item_viking_hammer">Dawn Hammer</option>
+      <option value="item_deadmans_draw">Deadman&#39;s Draw</option>
+      <option value="item_deadmans_draw_card">Deadman&#39;s Draw Card</option>
+      <option value="item_energy_sword_red">Delta Blade</option>
+      <option value="item_demon_sword">Demon Sword</option>
+      <option value="item_fish_diamond_jade_koi">Diamond Jade Koi</option>
+      <option value="item_disposable_camera">Disposable Camera</option>
+      <option value="item_fish_dollar_bill">Dollar Bill</option>
+      <option value="item_fish_dragonfish">Dragon Fish</option>
+      <option value="item_pistol_dragon">Dragon Pistol</option>
+      <option value="item_dragons_claw">Dragon&#39;s Claw</option>
+      <option value="item_drill_fists">Drill Fist</option>
+      <option value="item_dwarven_hammer">Dwarven Hammer</option>
+      <option value="item_pickaxe_spacedwarf">Dwarven Pickaxe</option>
+      <option value="item_dynamite">Dynamite</option>
+      <option value="item_easter_egg">Easter Egg</option>
+      <option value="item_egg">Egg</option>
+      <option value="item_rpg_easter">Egg Launcher RPG</option>
+      <option value="item_rpg_ammo_egg">Egg RPG Ammo</option>
+      <option value="item_electrical_tape">Electrical Tape</option>
+      <option value="item_toilet_paper_roll_empty">Empty Toilet Paper Roll</option>
+      <option value="item_harddrive">Encrypted Data</option>
+      <option value="item_eraser">Eraser</option>
+      <option value="item_quest_hlal_eyeball">Eyeball</option>
+      <option value="item_metal_plate_xmas">Festive Plate</option>
+      <option value="item_film_reel">Film Reel</option>
+      <option value="item_finger_board">Finger Board</option>
+      <option value="item_backpack_fish">Fish Backpack</option>
+      <option value="item_boombox_fishing">Fishing Boombox</option>
+      <option value="item_special_fishing_rod_radar_part">Fishing Rod Radar Part</option>
+      <option value="item_fishing_terminal_bait_button">Fishing Terminal Bait Button</option>
+      <option value="item_fish_fishsword">Fishsword</option>
+      <option value="item_flamethrower">Flamethrower</option>
+      <option value="item_flamethrower_skull">Flamethrower Skull</option>
+      <option value="item_snowboard_3">Flaming Eye Snowboard</option>
+      <option value="item_flaregun">Flaregun</option>
+      <option value="item_flashbang">Flashbang</option>
+      <option value="item_flashlight">Flashlight</option>
+      <option value="item_quest_hlal_flesh">Flesh</option>
+      <option value="item_floppy3">Floppy Disc (3½)</option>
+      <option value="item_floppy5">Floppy Disc (5¼)</option>
+      <option value="item_bait_fly">Fly</option>
+      <option value="item_football">Football</option>
+      <option value="item_four_leaf_clover">Four Leaf Clover</option>
+      <option value="item_four_leaf_radar">Four Leaf Radar</option>
+      <option value="item_friend_launcher">Friend Launcher</option>
+      <option value="item_frying_pan">Frying Pan</option>
+      <option value="item_flashlight_galaxy">Galaxy Flashlight</option>
+      <option value="item_great_sword_galaxy">Galaxy Great Sword</option>
+      <option value="item_hookshot_galaxy">Galaxy Hookshot</option>
+      <option value="item_hoverpad_galaxy">Galaxy Hoverpad</option>
+      <option value="item_robot_arm_left_galaxy">Galaxy Left Robot Arm</option>
+      <option value="item_pickaxe_realistic_galaxy">Galaxy P!ck@x=</option>
+      <option value="item_robot_arm_right_galaxy">Galaxy Right Robot Arm</option>
+      <option value="item_shield_galaxy">Galaxy Shield</option>
+      <option value="item_snowboard_galaxy">Galaxy Snowboard</option>
+      <option value="item_teleport_gun_galaxy">Galaxy Teleport Gun</option>
+      <option value="item_gameboy">Game Box</option>
+      <option value="item_energy_axe">Gamma Axe</option>
+      <option value="item_energy_sword_green">Gamma Blade</option>
+      <option value="item_wheelhandle_big">Giant Wheelhandle</option>
+      <option value="item_pickaxe_cny">Gilded Pickaxe</option>
+      <option value="item_steel_beam_xmas">Gingerbread Beam</option>
+      <option value="item_glitched_banana">Glitchy Banana</option>
+      <option value="item_bait_glowworm">Glow Worm</option>
+      <option value="item_glowstick">Glowstick</option>
+      <option value="item_goldbar">Gold Bar</option>
+      <option value="item_ore_gold_m">Gold Chunk</option>
+      <option value="item_fish_gold_fish">Gold Fish</option>
+      <option value="item_revolver_gold">Gold Revolver</option>
+      <option value="item_shotgun_gold">Gold Shotgun</option>
+      <option value="item_stellarsword_gold">Gold Stellar Sword</option>
+      <option value="item_goldcoin">Golden Coin</option>
+      <option value="item_four_leaf_clover_gold">Golden Four Leaf Clover</option>
+      <option value="item_grenade_gold">Golden Grenade</option>
+      <option value="item_ukulele_gold">Golden Ukulele</option>
+      <option value="item_brainslug_green">Goobert</option>
+      <option value="item_eye_googly">Googly Eye</option>
+      <option value="item_goop">Goop</option>
+      <option value="item_goopfish">Goopfish</option>
+      <option value="item_quest_key_graveyard">Graveyard Key</option>
+      <option value="item_great_sword">Great Sword</option>
+      <option value="item_backpack_green">Green Backpack</option>
+      <option value="item_grenade_launcher">Grenade Launcher</option>
+      <option value="item_guided_boomerang">Guided Boomerang</option>
+      <option value="item_hatchet">Hatchet</option>
+      <option value="item_hh_key">Haunted House Key</option>
+      <option value="item_hawaiian_drum">Hawaiian Drums</option>
+      <option value="item_quest_hlal_heart">Heart</option>
+      <option value="item_arrow_heart">Heart Arrow</option>
+      <option value="item_balloon_heart">Heart Balloon</option>
+      <option value="item_heartchocolatebox">Heart Chocolate Box</option>
+      <option value="item_heart_chunk">Heart Chunk</option>
+      <option value="item_crossbow_heart">Heart Crossbow</option>
+      <option value="item_heart_gun">Heart Gun</option>
+      <option value="item_quiver_heart">Heart Quiver</option>
+      <option value="item_hookshot">Hookshot</option>
+      <option value="item_hot_cocoa">Hot Chocolate</option>
+      <option value="item_hoverpad">Hoverpad</option>
+      <option value="item_batterycell_hydra">Hydra Batterycell Ammo</option>
+      <option value="item_hydra">Hydra Energy Blaster</option>
+      <option value="item_fish_hydracarp">Hydracarp</option>
+      <option value="item_grenade">Impact Grenade</option>
+      <option value="item_impulse_grenade">Impulse Grenade</option>
+      <option value="item_fish_irontusk">Irontusk</option>
+      <option value="item_brainslug_pink">Jelly</option>
+      <option value="item_jetpack">Jetpack</option>
+      <option value="item_quest_gy_skull_special">Jeweled Skull</option>
+      <option value="item_joystick">Joystick</option>
+      <option value="item_joystick_inv_y">Joystick (Inversed Y)</option>
+      <option value="item_shadowboss_key">Key of the Fallen One</option>
+      <option value="item_keycard">Keycard</option>
+      <option value="item_fish_kissy">Kissy</option>
+      <option value="item_lance">Lance</option>
+      <option value="item_landmine">Landmine</option>
+      <option value="item_lantern_cny">Lantern</option>
+      <option value="item_backpack_large_base">Large Backpack</option>
+      <option value="item_large_banana">Large Banana</option>
+      <option value="item_backpack_large_basketball">Large Basketball Print Backpack</option>
+      <option value="item_backpack_large_clover">Large Clover Print Backpack</option>
+      <option value="item_cola_large">Large Cola</option>
+      <option value="item_ore_copper_l">Large Copper Chunk</option>
+      <option value="item_ore_gold_l">Large Gold Chunk</option>
+      <option value="item_needle">Large Needle</option>
+      <option value="item_ore_silver_l">Large Silver Chunk</option>
+      <option value="item_uranium_chunk_l">Large Uranium Chunk</option>
+      <option value="item_lava_fishing_rod">Lava Fishing Rod</option>
+      <option value="item_robot_arm_left">Left Robot Arm</option>
+      <option value="item_fish_license_plate">License Plate</option>
+      <option value="item_arrow_lightbulb">Lightbulb Arrow</option>
+      <option value="item_love_grenade">Love Bomb</option>
+      <option value="item_fish_magma_carp">Magma Carp</option>
+      <option value="item_bait_magmar_ball">Magmar Ball</option>
+      <option value="item_mannequin_head">Mannequin Head</option>
+      <option value="item_mannequin_arm_left">Mannequin Left Arm</option>
+      <option value="item_mannequin_leg_left">Mannequin Left Leg</option>
+      <option value="item_mannequin_arm_right">Mannequin Right Arm</option>
+      <option value="item_mannequin_leg_right">Mannequin Right Leg</option>
+      <option value="item_mannequin_torso">Mannequin Torso</option>
+      <option value="item_marshmallow_bunny_bomb">Marshmallow Bunny Bomb</option>
+      <option value="item_fish_teeth">Meateating Spiritfish</option>
+      <option value="item_katana_medium">Medium Katana</option>
+      <option value="item_ampbattery_mega">Mega Amp Battery</option>
+      <option value="item_radioactive_broccoli">Mega Broccoli</option>
+      <option value="item_broccoli_grenade">Mega Broccoli Bomb</option>
+      <option value="item_flashlight_mega">Mega Flashlight</option>
+      <option value="item_toilet_paper_mega">Mega Toilet Paper</option>
+      <option value="item_megaphone">Megaphone</option>
+      <option value="item_metal_ball">Metal Ball</option>
+      <option value="item_metal_plate">Metal Plate</option>
+      <option value="item_metal_rod">Metal Rod</option>
+      <option value="item_metal_triangle">Metal Triangle</option>
+      <option value="item_shrinking_broccoli">Micro Broccoli</option>
+      <option value="item_broccoli_shrink_grenade">Micro Broccoli Bomb</option>
+      <option value="item_mining_laser">Mining Laser</option>
+      <option value="item_randombox_mobloot_medium">Mob Loot Box</option>
+      <option value="item_randombox_mobloot_weapons">Mob Weapons Loot Box</option>
+      <option value="item_momboss_box">Mom Box</option>
+      <option value="item_moneygun">Money Gun</option>
+      <option value="item_backpack_monkey">Monkey Backpack</option>
+      <option value="item_moonrock">Moon Rock</option>
+      <option value="item_mountain_key">Mountain Key</option>
+      <option value="item_bait_mouse_trap">Mouse Trap</option>
+      <option value="item_mug">Mug</option>
+      <option value="item_fish_nebula_fish">Nebula</option>
+      <option value="item_boombox_neon">Neon Boombox</option>
+      <option value="item_glowing_fishing_rod">Neon Fishing Rod</option>
+      <option value="item_nut">Nut</option>
+      <option value="item_nut_drop">Nut Drop</option>
+      <option value="item_shredder">Nut Shredder</option>
+      <option value="item_fish_nutfish">Nutfish</option>
+      <option value="item_randombox_mobloot_weapons_big">Obsidian Weapons Loot Box</option>
+      <option value="item_moonhorror_key">Odd Core Key</option>
+      <option value="item_ogre_hands">Ogre Hands</option>
+      <option value="item_mining_laser_orange">Old Mining Laser</option>
+      <option value="item_energy_sword_dual">Omega Blade</option>
+      <option value="item_orange">Orange</option>
+      <option value="item_painting_canvas">Painting Canvas</option>
+      <option value="item_paperpack">Paper</option>
+      <option value="item_metal_ball_xmas">Peppermint Ball</option>
+      <option value="item_moonrock_friend">Pet Moon Rock</option>
+      <option value="item_pickaxe">Pickaxe</option>
+      <option value="item_pinata_bat">Pinata Bat</option>
+      <option value="item_pineapple">Pineapple</option>
+      <option value="item_backpack_pink">Pink Backpack</option>
+      <option value="item_pipe">Pipe</option>
+      <option value="item_mage_pirate_sword">Pirate Lord Sword</option>
+      <option value="item_arena_pistol">Pistol</option>
+      <option value="item_plank">Plank</option>
+      <option value="item_plunger">Plunger</option>
+      <option value="item_pogostick">Pogostick</option>
+      <option value="item_police_baton">Police Baton (Crowbar)</option>
+      <option value="item_shield_police">Police Shield</option>
+      <option value="item_wood_pallet_easter">Polka Dot Pallet</option>
+      <option value="item_plank_easter">Polka Dot Plank</option>
+      <option value="item_truss_easter">Polka Dot Truss</option>
+      <option value="item_popcorn">Popcorn</option>
+      <option value="item_portable_safe_zone">Portable Safe Zone</option>
+      <option value="item_portable_teleporter">Portable Teleporter</option>
+      <option value="item_prop_scanner">Prop Scanner</option>
+      <option value="item_shield_bones">Protective Bone Shield</option>
+      <option value="item_fish_pufferfish">Pufferfish</option>
+      <option value="item_pumpkin_bomb">Pumpkin Bomb</option>
+      <option value="item_pumpkinjack">Pumpkin Jack</option>
+      <option value="item_pumpkin_pie">Pumpkin Pie</option>
+      <option value="item_quiver">Quiver</option>
+      <option value="item_flipflop_realistic">R3@L $@nda1</option>
+      <option value="item_backpack_realistic">R3@L 13ackp@ck</option>
+      <option value="item_pickaxe_realistic">R3@L P!ck@x=</option>
+      <option value="item_rpg">RPG</option>
+      <option value="item_rpg_ammo">RPG Rocket</option>
+      <option value="item_radiation_gun">Radiation Gun</option>
+      <option value="item_radioactive_fishing_rod">Radioactive Fishing Rod</option>
+      <option value="item_metal_ball_easter">Rainbow Ball</option>
+      <option value="item_metal_rod_easter">Rainbow Rod</option>
+      <option value="item_fish_rainbow_trout">Rainbow Trout</option>
+      <option value="item_rare_card">Rare Trading Card</option>
+      <option value="item_egg_easter_red">Red Bunny Egg</option>
+      <option value="item_flashlight_red">Red Flashlight</option>
+      <option value="item_fungi_red">Red Shroom</option>
+      <option value="item_remote_controller">Remote Controller</option>
+      <option value="item_revolver">Revolver</option>
+      <option value="item_revolver_ammo">Revolver Ammo</option>
+      <option value="item_robot_arm_right">Right Robot Arm</option>
+      <option value="item_ring_buoy">Ring Buoy</option>
+      <option value="item_robo_monke">RoboMonke2000</option>
+      <option value="item_robot_head">Robot Head</option>
+      <option value="item_rpg_cny">Rocket Dragon RPG</option>
+      <option value="item_rope">Rope</option>
+      <option value="item_fish_rotten_fish">Rotten Fish</option>
+      <option value="item_plate_round">Round Plate</option>
+      <option value="item_rubberducky">Rubber Ducky</option>
+      <option value="item_ruby">Ruby</option>
+      <option value="item_flamethrower_skull_ruby">Ruby Flamethrower Skull</option>
+      <option value="item_rpg_smshr">SMSHR RPG</option>
+      <option value="item_saddle">Saddle</option>
+      <option value="item_fish_salmon">Salmon</option>
+      <option value="item_salmoncannon">Salmon Cannon</option>
+      <option value="item_fish_salmonster">Salmonster</option>
+      <option value="item_bait_sardine">Sardine</option>
+      <option value="item_sawblade">Sawblade</option>
+      <option value="item_sawblade_launcher">Sawblade Launcher</option>
+      <option value="item_shotgun_sawed">Sawed Off</option>
+      <option value="item_fish_scaldfish">Scaldfish</option>
+      <option value="item_scanner">Scanner</option>
+      <option value="item_scissors">Scissors</option>
+      <option value="item_fish_seahorse">Seahorse</option>
+      <option value="item_fish_seamine">Seamine</option>
+      <option value="item_bait_shell">Shell</option>
+      <option value="item_fish_shellfish_shield">Shellfish Shield</option>
+      <option value="item_shield">Shield</option>
+      <option value="item_arena_shotgun">Shotgun (Arena)</option>
+      <option value="item_shotgun">Shotgun</option>
+      <option value="item_shotgun_ammo">Shotgun Ammo</option>
+      <option value="item_shovel">Shovel</option>
+      <option value="item_ore_silver_m">Silver Chunk</option>
+      <option value="item_skipole">Ski Pole</option>
+      <option value="item_skishoe">Ski Shoe (Blue)</option>
+      <option value="item_skishoe_2">Ski Shoe (Green)</option>
+      <option value="item_skishoe_3">Ski Shoe (Red)</option>
+      <option value="item_skishoe_4">Ski Shoe (Yellow)</option>
+      <option value="item_quest_gy_skull">Skull</option>
+      <option value="item_backpack_small_base">Small Backpack</option>
+      <option value="item_ore_copper_s">Small Copper Chunk</option>
+      <option value="item_ore_gold_s">Small Gold Chunk</option>
+      <option value="item_metal_plate_small">Small Metal Plate</option>
+      <option value="item_metal_rod_small">Small Metal Rod</option>
+      <option value="item_randombox_mobloot_small">Small Mob Loot Box</option>
+      <option value="item_pumpkinjack_small">Small Pumpkin Jack</option>
+      <option value="item_ore_silver_s">Small Silver Chunk</option>
+      <option value="item_truss_small">Small Truss</option>
+      <option value="item_uranium_chunk_s">Small Uranium Chunk</option>
+      <option value="item_snail_friend">Snail</option>
+      <option value="item_snowboard_4">Snow Snowboard</option>
+      <option value="item_snowball">Snowball</option>
+      <option value="item_special_fishing_rod">Special Fishing Rod</option>
+      <option value="item_special_fishing_rod_with_radar">Special Fishing Rod (Radar)</option>
+      <option value="item_snowboard_auto">Special Snowboard</option>
+      <option value="item_fish_ghost_sword">Spectral Swordfish</option>
+      <option value="item_fish_spicy_salmon">Spicy Salmon</option>
+      <option value="item_pennant_spring">Spring Pennants</option>
+      <option value="item_umbrella_squirrel">Squirrel Umbrella</option>
+      <option value="item_stapler">Stapler</option>
+      <option value="item_bait_starfish">Starfish</option>
+      <option value="item_stash_grenade">Stash Grenade</option>
+      <option value="item_steel_beam">Steel Beam</option>
+      <option value="item_sticker_dispenser">Sticker Dispenser</option>
+      <option value="item_sticky_dynamite">Sticky Dynamite</option>
+      <option value="item_stinky_cheese">Stinky Cheese</option>
+      <option value="item_stopwatch">Stopwatch</option>
+      <option value="item_tablet">Tablet</option>
+      <option value="item_tapedispenser">Tape Dispenser</option>
+      <option value="item_tele_grenade">Tele Grenade</option>
+      <option value="item_tele_pearl">Tele Pearl</option>
+      <option value="item_arrow_teleport">Teleport Arrow</option>
+      <option value="item_teleport_dagger">Teleport Dagger</option>
+      <option value="item_teleport_gun">Teleport Gun</option>
+      <option value="item_shield_viking_3">Thane Shield</option>
+      <option value="item_theremin">Theremin</option>
+      <option value="item_timebomb">Time Bomb</option>
+      <option value="item_toilet_paper">Toilet Paper</option>
+      <option value="item_token_circus">Token</option>
+      <option value="item_trampoline">Trampoline</option>
+      <option value="item_treestick">Tree Stick</option>
+      <option value="item_fish_triclops">Triclops</option>
+      <option value="item_tripwire_explosive">Tripwire Explosive</option>
+      <option value="item_trophy">Trophy</option>
+      <option value="item_truss">Truss</option>
+      <option value="item_fish_tuna">Tuna</option>
+      <option value="item_turkey_leg">Turkey Leg</option>
+      <option value="item_turkey_whole">Turkey Whole</option>
+      <option value="item_viking_hammer_twilight">Twilight Hammer</option>
+      <option value="item_ukulele">Ukulele</option>
+      <option value="item_umbrella">Umbrella</option>
+      <option value="item_unidentified">Unknown Item</option>
+      <option value="item_upsidedown_loot">Upsidedown Loot</option>
+      <option value="item_uranium_chunk_m">Uranium Chunk</option>
+      <option value="item_quest_vhs">VHS</option>
+      <option value="item_quest_vhs_backlots">VHS Backlots</option>
+      <option value="item_quest_vhs_basement">VHS Basement</option>
+      <option value="item_quest_vhs_cave">VHS Cave</option>
+      <option value="item_quest_vhs_circus_ext">VHS Circus</option>
+      <option value="item_quest_vhs_dam_facility">VHS Dam Facility</option>
+      <option value="item_quest_vhs_dam_servers">VHS Dam Servers</option>
+      <option value="item_quest_vhs_dark_forest">VHS Dark Forest</option>
+      <option value="item_quest_vhs_circus_day">VHS Daycare</option>
+      <option value="item_quest_vhs_eden">VHS Eden</option>
+      <option value="item_quest_vhs_forest">VHS Forest</option>
+      <option value="item_quest_vhs_foundation">VHS Foundation</option>
+      <option value="item_quest_vhs_mountainvault">VHS Frozen Vault</option>
+      <option value="item_quest_vhs_graveyard">VHS Graveyard</option>
+      <option value="item_quest_vhs_haunted_house">VHS Haunted House</option>
+      <option value="item_quest_vhs_hell">VHS Hell</option>
+      <option value="item_quest_vhs_lab">VHS Lab</option>
+      <option value="item_quest_vhs_lake">VHS Lake</option>
+      <option value="item_quest_vhs_lobby">VHS Lobby</option>
+      <option value="item_quest_vhs_mountainbot">VHS Lost Valley</option>
+      <option value="item_quest_vhs_megalodon">VHS Megalodon</option>
+      <option value="item_quest_vhs_megalodon_lake">VHS Megalodon Lake</option>
+      <option value="item_quest_vhs_mines">VHS Mines</option>
+      <option value="item_quest_vhs_moon">VHS Moon</option>
+      <option value="item_quest_vhs_mountain">VHS Mountain</option>
+      <option value="item_quest_vhs_obsidianhalls">VHS Obsidian Halls</option>
+      <option value="item_quest_vhs_odd_core">VHS Odd Core</option>
+      <option value="item_quest_vhs_office">VHS Office</option>
+      <option value="item_quest_vhs_office_basement">VHS Office Basement</option>
+      <option value="item_quest_vhs_mountainshack">VHS Outpost</option>
+      <option value="item_quest_vhs_powerplant_microwave">VHS Power Plant Microwave</option>
+      <option value="item_quest_vhs_powerplant_reactorcore">VHS Power Plant Reactor Core</option>
+      <option value="item_quest_vhs_powerplant_security">VHS Power Plant Security</option>
+      <option value="item_quest_vhs_powerplant_supportfacility">VHS Power Plant Support Facility</option>
+      <option value="item_quest_vhs_sandbox">VHS Sandbox</option>
+      <option value="item_quest_vhs_circus_fac">VHS School</option>
+      <option value="item_quest_vhs_sewers">VHS Sewers</option>
+      <option value="item_quest_vhs_moon_horror_rocket">VHS UFO</option>
+      <option value="item_quest_vhs_vhs-core">VHS Vhs-core</option>
+      <option value="item_shield_viking_4">Varangian Shield</option>
+      <option value="item_shield_viking_1">Viking Shield</option>
+      <option value="item_shotgun_viper">Viper Shotgun</option>
+      <option value="item_bait_wallet">Wallet</option>
+      <option value="item_war_fan">War Fan</option>
+      <option value="item_wheelhandle">Wheelhandle</option>
+      <option value="item_backpack_white">White Backpack</option>
+      <option value="item_whoopie">Whoopie</option>
+      <option value="item_broom_halloween">Wicked Broom</option>
+      <option value="item_wireframe_cube">Wireframe Cube</option>
+      <option value="item_wireframe_gun">Wireframe Gun</option>
+      <option value="item_wood_log">Wood Log</option>
+      <option value="item_wood_pallet">Wood Pallet</option>
+      <option value="item_wyrmpiercer">Wyrmpiercer Halberd</option>
+      <option value="item_hookshot_sword">Yeetblade</option>
+      <option value="item_egg_easter_yellow">Yellow Bunny Egg</option>
+      <option value="item_fish_yellowcake">Yellowcake</option>
+      <option value="item_zipline_gun">Zipline Gun</option>
+      <option value="item_randombox_mobloot_zombie">Zombie Loot Box</option>
+      <option value="item_zombie_meat">Zombie Meat</option>
+      <option value="item_fish_redacted">[REDACTED]</option>
+          </select>
+          <label class="check-wrap" title="Random item">
+            <input type="checkbox" id="rngItem">
+            🎲
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPEARANCE CARD -->
+    <div class="glass-card">
+      <div class="card-title">
+        <span class="collapse-toggle" onclick="toggleCard(this)" data-target="appearBody">
+          <span>Appearance</span>
+          <span class="chevron"></span>
+        </span>
+      </div>
+      <div id="appearBody" class="collapsible" style="max-height:800px;">
+        <div class="slider-row">
+          <label class="check-wrap">
+            <input type="checkbox" id="cR">🎲
+          </label>
+          <span class="slider-label" onclick="promptVal('color-sl','Color',0,240,0)" title="Click to type value">Color</span>
+          <input value="161" id="color-sl" min="0" max="240" type="range">
+          <span class="slider-val" id="colorVal">161</span>
+        </div>
+        <div class="slider-row">
+          <label class="check-wrap">
+            <input type="checkbox" id="saR">🎲
+          </label>
+          <span class="slider-label" onclick="promptVal('sat-sl','Saturation',-124,124,124)" title="Click to type value">Saturation</span>
+          <input value="240" min="0" max="248" id="sat-sl" type="range">
+          <span class="slider-val" id="satVal">116</span>
+        </div>
+        <div class="slider-row">
+          <label class="check-wrap">
+            <input type="checkbox" id="sR">🎲
+          </label>
+          <span class="slider-label" onclick="promptVal('size-sl','Size',-128,127,128)" title="Click to type value">Size Modifier</span>
+          <input value="128" min="0" max="255" id="size-sl" type="range">
+          <span class="slider-val" id="sizeVal">0</span>
+        </div>
+        <div class="slider-row">
+          <label class="check-wrap">
+            <input type="checkbox" id="vR">🎲
+          </label>
+          <span class="slider-label" onclick="promptVal('state-sl','Value (Shredders)',0,8000,0)" title="Click to type value">Value (Shredders)</span>
+          <input value="0" min="0" max="8000" id="state-sl" type="range">
+          <span class="slider-val" id="stateVal">0</span>
+        </div>
+        <div class="slider-row">
+          <label class="check-wrap">
+            <input type="checkbox" id="aR">🎲
+          </label>
+          <span class="slider-label" onclick="promptVal('ammo-sl','Ammo (Guns)',0,2,0)" title="Click to type value">Ammo (Guns)</span>
+          <input value="0" min="0" max="2" id="ammo-sl" type="range">
+          <span class="slider-val" id="ammoVal">0</span>
+        </div>
+        <div class="color-preview-wrap">
+          <span class="preview-label">Preview:</span>
+          <div class="preview-item-wrap">
+            <img width="80" src="crate.png" id="dispItem" alt="item preview">
+            <div id="overlayM"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BULK / EXPORT CARD -->
+    <div class="glass-card">
+      <div class="card-title">
+        <span class="collapse-toggle" onclick="toggleCard(this)" data-target="bulkBody">
+          <span>Bulk &amp; Export</span>
+          <span class="chevron"></span>
+        </span>
+      </div>
+      <div id="bulkBody" class="collapsible" style="max-height:300px;">
+        <div class="input-row" style="margin-bottom:10px;">
+          <label class="check-wrap">
+            <input type="checkbox" id="explodeMode">
+            💥 Explode Mode
+          </label>
+          <button class="btn btn-icon btn-secondary help-btn" onclick="alert('Forces all items created using a bypass bag to be on a heart gun. This forces items to be pushed out of the bag. Not recommended as it almost doubles the JSON file size.')">?</button>
+        </div>
+        <div class="input-row">
+          <button class="btn btn-warn" onclick="createAlot()">📦 Create Bypass Bag</button>
+          <button class="btn btn-primary" onclick="dlJson()">⬇ Download JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHARE CARD -->
+    <div class="glass-card">
+      <div class="card-title">
+        <span class="collapse-toggle" onclick="toggleCard(this)" data-target="shareBody">
+          <span>Share JSON Files</span>
+          <span class="chevron"></span>
+        </span>
+      </div>
+      <div id="shareBody" class="collapsible" style="max-height:500px;">
+        <div class="input-row" style="flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <input type="file" id="jsonFile" accept=".json">
+          <input type="text" id="fileName" placeholder="File Name" style="flex:1;min-width:120px;">
+          <input type="text" id="authorName" placeholder="Author Name" style="flex:1;min-width:120px;">
+          <button class="btn btn-info" onclick="uploadJson()">⬆ Upload</button>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Available Files</div>
+        <div id="fileList" style="max-height:180px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <!-- JSON OUTPUT -->
+    <label id="kb">your json · 0.00 kb</label>
+
+    <!-- ROOT SLOTS -->
+    <div id="rootContainer">
+      <label onclick="manageItem(this)" class="itemCl mRoot" acvalue="rightHand" id="rightHandRoot">🤜 rightHand</label>
+      <label onclick="manageItem(this)" class="itemCl mRoot" acvalue="leftHand"  id="leftHandRoot">🤛 leftHand</label>
+      <label onclick="manageItem(this)" class="itemCl mRoot" acvalue="leftHip"   id="rightHipRoot">⬅ leftHip</label>
+      <label onclick="manageItem(this)" class="itemCl mRoot" acvalue="rightHip"  id="leftHipRoot">➡ rightHip</label>
+      <label onclick="manageItem(this)" class="itemCl mRoot" acvalue="back"      id="backRoot">🎒 back</label>
+    </div>
+    <div style="height:80px;"></div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="itemModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title">Item Actions</div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary modal-btn" onclick="handleModalAction(1)">📌 Set as Root</button>
+        <button class="btn btn-danger modal-btn"  onclick="handleModalAction(2)">🗑 Delete Item</button>
+        <button class="btn btn-info modal-btn"    onclick="showDuplicateInput()">📋 Duplicate Item</button>
+        <button class="btn btn-warn modal-btn"    onclick="handleModalAction(4)">👁 Toggle Children</button>
+        <button class="btn btn-secondary modal-btn" onclick="closeModal()">✕ Cancel</button>
+      </div>
+      <div id="duplicateInputContainer" style="display:none;margin-top:12px;">
+        <input type="number" id="duplicateCount" class="duplicate-input" placeholder="Number of copies" min="1" value="1">
+        <button class="btn btn-info modal-btn" style="width:100%;margin-top:8px;" onclick="handleModalAction(3)">✔ Confirm Duplicate</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Ripple helper ──────────────────────────────────────────
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+      btn.classList.remove('rippling');
+      void btn.offsetWidth;
+      btn.classList.add('rippling');
+      btn.addEventListener('animationend', () => btn.classList.remove('rippling'), { once: true });
+    });
+
+    // ── Card collapse ──────────────────────────────────────────
+    function toggleCard(toggle) {
+      const target = document.getElementById(toggle.dataset.target);
+      const collapsed = toggle.classList.toggle('collapsed');
+      target.classList.toggle('hidden', collapsed);
+    }
+
+    // ── Slider prompt ──────────────────────────────────────────
+    function promptVal(sliderId, label, min, max, offset) {
+      const a = prompt(`${label} (${min} to ${max})`);
+      const n = parseInt(a);
+      if (isNaN(n) || n < min || n > max) return;
+      const s = document.getElementById(sliderId);
+      s.value = n + offset;
+      s.dispatchEvent(new Event('input'));
+    }
+
+    // ── Color helpers ──────────────────────────────────────────
+    function hueSaturationToRGB(hue, saturation) {
+      const hue2 = (hue / 240) * 325;
+      const sat2 = ((saturation / 248) * 164) + 84;
+      const s = sat2 / 120;
+      const c = s * 255;
+      const x = c * (1 - Math.abs((hue2 / 60) % 2 - 1));
+      const m = 255 - c;
+      let r, g, b;
+      if      (hue2 < 60)  { r=c; g=x; b=0; }
+      else if (hue2 < 120) { r=x; g=c; b=0; }
+      else if (hue2 < 180) { r=0; g=c; b=x; }
+      else if (hue2 < 240) { r=0; g=x; b=c; }
+      else if (hue2 < 300) { r=x; g=0; b=c; }
+      else                 { r=c; g=0; b=x; }
+      const inv = saturation / 248;
+      r = Math.round((r+m)*inv + (255-(r+m))*(1-inv));
+      g = Math.round((g+m)*inv + (255-(g+m))*(1-inv));
+      b = Math.round((b+m)*inv + (255-(b+m))*(1-inv));
+      return `rgb(${r},${g},${b}`;
+    }
+
+    function updateOverlay() {
+      const cl = document.getElementById('color-sl');
+      const sr = document.getElementById('sat-sl');
+      document.getElementById('overlayM').style.background =
+        hueSaturationToRGB(cl.value, sr.value) + ',0.5)';
+    }
+
+    // Slider events
+    const cl = document.getElementById('color-sl');
+    const sr = document.getElementById('sat-sl');
+    cl.oninput = () => { document.getElementById('colorVal').textContent = cl.value; updateOverlay(); };
+    sr.oninput = () => { document.getElementById('satVal').textContent = sr.value - 124; updateOverlay(); };
+    document.getElementById('size-sl').oninput = function() {
+      document.getElementById('sizeVal').textContent = this.value - 128;
+      document.getElementById('dispItem').style.width = ((this.value / 127) * 85 + 32) + 'px';
+    };
+    document.getElementById('state-sl').oninput = function() { document.getElementById('stateVal').textContent = this.value; };
+    document.getElementById('ammo-sl').oninput  = function() { document.getElementById('ammoVal').textContent = this.value; };
+    updateOverlay();
+
+    // ── Search bar ──────────────────────────────────────────────
+    const searchBar = document.getElementById('search-bar');
+    const selectBox = document.getElementById('item-selected');
+    searchBar.addEventListener('input', () => {
+      const q = searchBar.value.toLowerCase();
+      for (const opt of selectBox.options) {
+        opt.hidden = !opt.text.toLowerCase().includes(q);
+      }
+      if (selectBox.selectedOptions[0]?.hidden) {
+        const first = Array.from(selectBox.options).find(o => !o.hidden);
+        if (first) selectBox.value = first.value;
+      }
+    });
+
+    // ── Root management ─────────────────────────────────────────
+    var rootCurrent = document.getElementById('rightHandRoot');
+    var recentItemCreated = null;
+    var bB = true;
+    var currentClickedElement = null;
+    const ROOTS = ['rightHandRoot','leftHandRoot','rightHipRoot','leftHipRoot','backRoot'];
+
+    function setRoot(el) { rootCurrent = el; }
+    function getDepth(el) {
+      let d=0; while(el.parentNode && el.parentNode.className!=='mRoot'){d++;el=el.parentNode;} return d;
+    }
+
+    // ── Add item ─────────────────────────────────────────────────
+    function addItem() {
+      const rootId = rootCurrent.id;
+      const isSlotRoot = ROOTS.includes(rootId) && rootCurrent.classList.contains('mRoot');
+      if (isSlotRoot && rootCurrent.children.length > 0) {
+        window.alert("Can't put more than one item into a slot! 🤣"); return;
+      }
+      const item = document.getElementById('item-selected');
+      let amount = isSlotRoot ? 1 : parseInt(document.getElementById('Amount').value) || 1;
+      for (let i = 0; i < amount; i++) {
+        const rng = document.getElementById('rngItem').checked && bB;
+        const opts = Array.from(item.options).filter(o => !o.hidden);
+        const chosen = rng ? opts[Math.floor(Math.random()*opts.length)] : item.options[item.selectedIndex];
+        const size  = document.getElementById('sR').checked  ? Math.round(Math.random()*255)-128 : +document.getElementById('size-sl').value-128;
+        const color = document.getElementById('cR').checked  ? Math.round(Math.random()*240)     : +document.getElementById('color-sl').value;
+        const satu  = document.getElementById('saR').checked ? Math.round(Math.random()*248)-124 : +document.getElementById('sat-sl').value-124;
+        const state = document.getElementById('vR').checked  ? Math.round(Math.random()*8000)    : +document.getElementById('state-sl').value;
+        const ammo  = document.getElementById('aR').checked  ? Math.round(Math.random()*2)       : +document.getElementById('ammo-sl').value;
+        const el = document.createElement('label');
+        el.textContent = chosen.text;
+        el.setAttribute('ACvalue', chosen.value);
+        if (color!==0) el.setAttribute('colorHue', color);
+        if (size!==0)  el.setAttribute('scaleModifier', size);
+        if (satu!==0)  el.setAttribute('colorSaturation', satu);
+        if (chosen.value==='item_shredder' && state!==0) el.setAttribute('state', state);
+        if (chosen.value==='item_shotgun'  && ammo!==0)  el.setAttribute('ammo', ammo);
+        el.className = 'itemCl';
+        el.onclick = function(e) { e.stopPropagation(); manageItem(this); };
+        el.style.background = hueSaturationToRGB(color, satu+124) + ',0.25)';
+        el.style.borderColor = hueSaturationToRGB(color, satu+124) + ',0.4)';
+        rootCurrent.appendChild(el);
+        recentItemCreated = el;
+      }
+    }
+
+    // ── Modal ────────────────────────────────────────────────────
+    function manageItem(el) {
+      el.style.outline = '2px solid var(--accent)';
+      currentClickedElement = el;
+      document.getElementById('itemModal').classList.add('open');
+    }
+    function closeModal() {
+      document.getElementById('itemModal').classList.remove('open');
+      document.getElementById('duplicateInputContainer').style.display = 'none';
+      if (currentClickedElement) { currentClickedElement.style.outline = ''; currentClickedElement = null; }
+    }
+    function showDuplicateInput() { document.getElementById('duplicateInputContainer').style.display='block'; }
+    document.getElementById('itemModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+
+    function handleModalAction(action) {
+      if (!currentClickedElement) return;
+      switch(action) {
+        case 1: setRoot(currentClickedElement); break;
+        case 2:
+          if (!currentClickedElement.classList.contains('mRoot') && currentClickedElement.parentNode) {
+            currentClickedElement.parentNode.removeChild(currentClickedElement);
+          } else { alert("Can't delete root slots!"); }
+          break;
+        case 3: {
+          const n = parseInt(document.getElementById('duplicateCount').value)||1;
+          if (!currentClickedElement.classList.contains('mRoot')) {
+            for (let i=0;i<n;i++) {
+              const dup = currentClickedElement.cloneNode(true);
+              dup.onclick = function(e){e.stopPropagation();manageItem(this);};
+              currentClickedElement.parentNode.appendChild(dup);
+            }
+          } else alert('Cannot duplicate root slots!');
+          break;
+        }
+        case 4:
+          for (const ch of currentClickedElement.children)
+            ch.style.display = ch.style.display==='none' ? 'block' : 'none';
+          break;
+      }
+      kbUpd(); closeModal();
+    }
+
+    // ── JSON compile ──────────────────────────────────────────────
+    function compileItem(el) {
+      const obj = { itemID: el.getAttribute('ACvalue') };
+      if (el.getAttribute('colorHue')!=null)       obj.colorHue       = parseFloat(el.getAttribute('colorHue'));
+      if (el.getAttribute('colorSaturation')!=null) obj.colorSaturation= parseFloat(el.getAttribute('colorSaturation'));
+      if (el.getAttribute('scaleModifier')!=null)   obj.scaleModifier  = parseFloat(el.getAttribute('scaleModifier'));
+      if (el.getAttribute('state')!=null)           obj.state          = parseInt(el.getAttribute('state'),10);
+      if (el.getAttribute('ammo')!=null)            obj.ammo           = parseInt(el.getAttribute('ammo'),10);
+      if (el.children.length>0) obj.children = Array.from(el.children).map(compileItem);
+      return obj;
+    }
+    function getSlot(id) { return Array.from(document.getElementById(id).children).map(compileItem); }
+
+    function kbUpd() {
+      const data = {
+        rightHand: getSlot('rightHandRoot'),
+        leftHand:  getSlot('leftHandRoot'),
+        leftHip:   getSlot('leftHipRoot'),
+        rightHip:  getSlot('rightHipRoot'),
+        back:      getSlot('backRoot')
+      };
+      const str = JSON.stringify(data);
+      const kb  = (new Blob([str]).size/1024).toFixed(2);
+      document.getElementById('kb').textContent = `your json · ${kb} kb`;
+    }
+
+    function dlJson() {
+      const rightAry = getSlot('rightHandRoot');
+      const leftAry  = getSlot('leftHandRoot');
+      const leftHAry = getSlot('leftHipRoot');
+      const rightHAry= getSlot('rightHipRoot');
+      const backAry  = getSlot('backRoot');
+      let out = JSON.stringify({
+        version: 1,
+        "xmod-json-maker-v9": "",
+        leftHand:  leftAry.length  ? leftAry[0]   : {},
+        rightHand: rightAry.length ? rightAry[0]  : {},
+        leftHip:   leftHAry.length ? leftHAry[0]  : {},
+        rightHip:  rightHAry.length? rightHAry[0] : {},
+        back:      backAry.length  ? backAry[0]   : {}
+      }, null, 2);
+      out = out.replace(/^\s+/gm,'').replace(/: /g,':').replace(/, /g,',').replace(/\s+$/gm,'') + '\n';
+      const name = prompt('Name for your JSON file?') || 'xmod';
+      const blob = new Blob([out], {type:'application/json'});
+      const a = document.createElement('a');
+      a.download = name + ' V9 Maker.json';
+      a.href = URL.createObjectURL(blob);
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+
+    // ── Bypass bag ────────────────────────────────────────────────
+    function createAlot() {
+      bB = false;
+      const r = parseInt(prompt('Which slot? (1=rightHand 2=leftHand 3=rightHip 4=leftHip 5=back)'));
+      const rootIds = ['','rightHandRoot','leftHandRoot','rightHipRoot','leftHipRoot','backRoot'];
+      let rootOp = document.getElementById(rootIds[r]||'rightHandRoot');
+      const itemSel = document.getElementById('item-selected');
+      let amt = parseInt(prompt(`How many ${itemSel.options[itemSel.selectedIndex].text}'s in one bag?`));
+      if (isNaN(amt)||amt<1) amt=1;
+      if (amt>3500){amt=3500;alert('Capped at 3500 items.');}
+      amt = Math.round(amt);
+      let itemSave = itemSel.value;
+      if (rootOp.children.length>0) rootOp.removeChild(rootOp.children[0]);
+      setRoot(rootOp);
+      itemSel.value='item_backpack_large_base'; addItem();
+      let alotRoot = rootOp.children[0];
+      let bagAmnt = Math.ceil(amt/23);
+      let layersNeeded = Math.ceil(bagAmnt/23);
+      rootOp.removeChild(rootOp.children[0]);
+      setRoot(rootOp); itemSel.value='item_backpack_large_base'; addItem();
+      alotRoot = rootOp.children[0];
+      let bagsMade=0, itemsMade=0;
+      const amtSave = document.getElementById('Amount').value;
+      document.getElementById('Amount').value=1;
+      setRoot(alotRoot);
+      for (let x=0;x<layersNeeded;x++) {
+        for (let x2=0;x2<23;x2++) {
+          if (bagsMade===bagAmnt) break;
+          itemSel.value='item_heart_gun'; addItem(); setRoot(recentItemCreated);
+          itemSel.value='item_backpack_large_base'; addItem(); setRoot(recentItemCreated);
+          if (x2!==22) {
+            for (let x3=0;x3<23;x3++) {
+              if (itemsMade===amt) break;
+              if (document.getElementById('rngItem').checked) {
+                const visOpts=Array.from(itemSel.options).filter(o=>!o.hidden);
+                itemSave=visOpts[Math.floor(Math.random()*visOpts.length)].value;
+              }
+              const needsWrap = itemSave.includes('backpack')||itemSave.includes('cardb')||itemSave==='item_shredder'||itemSave==='item_pelican_case'||itemSave.includes('quiver')||itemSave.includes('hover')||document.getElementById('explodeMode').checked;
+              if (needsWrap){itemSel.value='item_heart_gun';addItem();setRoot(recentItemCreated);}
+              if (itemSave.includes('landmine')){itemSel.value='item_crossbow';addItem();setRoot(recentItemCreated);}
+              itemSel.value=itemSave; addItem();
+              if (needsWrap||itemSave.includes('landmine')) setRoot(recentItemCreated.parentNode.parentNode);
+              itemsMade++;
+            }
+          }
+          setRoot(alotRoot); bagsMade++;
+        }
+        alotRoot=recentItemCreated;
+      }
+      itemSel.value=itemSave;
+      document.getElementById('Amount').value=amtSave;
+      setRoot(rootOp);
+      alert('Done! 🎉');
+      kbUpd(); bB=true;
+    }
+
+    // ── File sharing ──────────────────────────────────────────────
+    async function uploadJson() {
+      const fi=document.getElementById('jsonFile'),fn=document.getElementById('fileName').value.trim(),au=document.getElementById('authorName').value.trim();
+      if(!fi.files[0]||!fn||!au){alert('Please fill in all fields and select a JSON file.');return;}
+      if(!fi.files[0].name.endsWith('.json')){alert('Only JSON files allowed.');return;}
+      try{JSON.parse(await fi.files[0].text());}catch{alert('Invalid JSON.');return;}
+      const fd=new FormData();fd.append('file',fi.files[0]);fd.append('fileName',fn);fd.append('authorName',au);
+      const r=await fetch('/api/upload',{method:'POST',body:fd});
+      alert(r.ok?'Uploaded!':'Upload error.');
+      if(r.ok) fetchFileList();
+    }
+    async function fetchFileList() {
+      try{
+        const r=await fetch('/api/files'); const files=await r.json();
+        const fl=document.getElementById('fileList'); fl.innerHTML='';
+        files.forEach(f=>{
+          const d=document.createElement('div'); d.className='file-list-item';
+          const a=document.createElement('a'); a.href=`/api/download/${f}`; a.textContent=f; a.target='_blank';
+          d.appendChild(a); fl.appendChild(d);
+        });
+      }catch(e){/* server not running locally */}
+    }
+    window.onload=()=>{fetchFileList();kbUpd();};
+  </script>
+</body>
+</html>
