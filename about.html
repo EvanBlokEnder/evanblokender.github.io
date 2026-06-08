@@ -1,112 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Me - EvanBlokEnder</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Me - EvanBlokEnder</title>
 
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            background: radial-gradient(circle at top, #0a0a0f, #000);
-            color: #e3e3e3;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        /* Liquid Glass Effect */
-        .glass {
-            position: relative;
-            background: rgba(255,255,255,.08);
-            border: 2px solid transparent;
-            box-shadow: 0 0 0 2px rgba(255,255,255,.6), 0 16px 32px rgba(0,0,0,.12);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 20px;
-        }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #08090d;
+      color: #e8e8e8;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
 
-        .glass::before,
-        .glass::after {
-            content: "";
-            position: absolute;
-            width: 40%;
-            height: 10px;
-            background: #fff;
-            border-radius: 10px;
-            opacity: 0.15;
-        }
-        .glass::after { transform: rotate(90deg); }
+    header {
+      max-width: 900px;
+      margin: 30px auto 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        header {
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    header h1 {
+      font-size: 24px;
+      color: #9bd8ff;
+      letter-spacing: 1px;
+    }
 
-        header h1 {
-            font-size: 26px;
-            background: linear-gradient(90deg, #5ab2ff, #9df7ff);
-            -webkit-background-clip: text;
-            color: transparent;
-        }
+    .button {
+      color: #cfeeff;
+      text-decoration: none;
+      border: 1px solid #23475f;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: #101923;
+      transition: 0.2s;
+    }
 
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #004e92, #000428);
-            color: #fff;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: 0.3s ease;
-        }
-        .button:hover {
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 0 15px rgba(100,180,255,0.6);
-        }
+    .button:hover {
+      background: #172637;
+      transform: translateY(-2px);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 20px;
-        }
+    .container {
+      max-width: 900px;
+      margin: 70px auto;
+      padding: 0 20px;
+    }
 
-        .card {
-            padding: 25px;
-            margin: 25px 0;
-            text-align: center;
-            border-radius: 15px;
-        }
+    .card {
+      background: #101116;
+      border: 1px solid #242733;
+      border-radius: 16px;
+      padding: 35px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
 
-        footer {
-            text-align: center;
-            padding: 25px;
-            opacity: 0.8;
-            margin-top: 40px;
-        }
-    </style>
+    .card h2 {
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: #ffffff;
+    }
+
+    .card p {
+      color: #c9c9c9;
+      font-size: 17px;
+      max-width: 650px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #132030;
+      color: #8fd3ff;
+      font-size: 14px;
+      border: 1px solid #26384a;
+    }
+
+    footer {
+      max-width: 900px;
+      margin: 80px auto 30px;
+      padding: 0 20px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
 </head>
+
 <body>
-    <header class="glass">
-        <a href="index.html" class="button">Home</a>
-        <h1>About Me</h1>
-    </header>
+  <header>
+    <a href="index.html" class="button">Home</a>
+    <h1>EvanBlokEnder</h1>
+  </header>
 
-    <div class="container">
-        <div class="card glass">
-            <h2>About Me</h2>
-            <p> WARNING! Page is not up to date with styles.css. Hello! I'm a ranked 5000 Beat Saber VR player and that's it yayyayayyay! mm</p>
-        </div>
-    </div>
+  <main class="container">
+    <section class="card">
+      <h2>About Me</h2>
+      <p>
+        Hey, I'm EvanBlokEnder. I play Beat Saber VR and I'm ranked around top 5000.
+        I mostly mess around with games, code, and random projects.
+      </p>
 
-    <footer class="glass">
-        <p>&copy; 2026 EvanBlokEnder. All Rights Reserved.</p>
-    </footer>
+      <span class="tag">Beat Saber Player</span>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 EvanBlokEnder. All Rights Reserved.</p>
+  </footer>
 </body>
 </html>
