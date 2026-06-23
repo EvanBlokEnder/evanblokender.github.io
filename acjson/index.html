@@ -2,287 +2,240 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>xmod JSON Maker V10</title>
+<title>xmod JSON Maker</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --c-bg:#080b14;--c-panel:rgba(255,255,255,0.045);--c-border:rgba(255,255,255,0.11);
-  --c-hi:rgba(255,255,255,0.18);--c-shadow:rgba(0,0,0,0.6);
-  --c-rh:#00ffb3;--c-lh:#00d4ff;--c-rhip:#ff9500;--c-lhip:#ff4fa0;--c-bk:#a78bfa;
-  --c-accent:#00ffb3;--c-text:#dde8ff;--c-dim:rgba(221,232,255,0.45);
-  --c-drag:#00ffb3;--c-drop:rgba(0,255,179,0.15);
-  --r:14px;--r-sm:8px;--font:'Rajdhani',sans-serif;--mono:'JetBrains Mono',monospace;
+  --c-bg:#09090b;--c-surface:#111114;--c-panel:rgba(255,255,255,0.03);--c-border:rgba(255,255,255,0.08);
+  --c-hi:rgba(255,255,255,0.12);--c-shadow:rgba(0,0,0,0.45);
+  --c-rh:#22d3ee;--c-lh:#818cf8;--c-rhip:#fbbf24;--c-lhip:#f472b6;--c-bk:#a78bfa;
+  --c-accent:#8b5cf6;--c-accent2:#06b6d4;--c-text:#fafafa;--c-dim:rgba(250,250,250,0.5);
+  --c-drag:#8b5cf6;--c-drop:rgba(139,92,246,0.12);
+  --r:12px;--r-sm:8px;--font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--c-bg);color:var(--c-text);min-height:100vh;overflow-x:hidden}
 
-/* BG */
 body::before{content:'';position:fixed;inset:0;
   background:
-    radial-gradient(ellipse 90% 55% at 10% 5%,rgba(0,255,179,0.09) 0%,transparent 55%),
-    radial-gradient(ellipse 60% 70% at 85% 85%,rgba(167,139,250,0.09) 0%,transparent 55%),
-    radial-gradient(ellipse 50% 45% at 50% 40%,rgba(0,212,255,0.06) 0%,transparent 60%);
-  pointer-events:none;z-index:0;animation:bgp 20s ease-in-out infinite alternate}
-@keyframes bgp{to{opacity:.6;transform:scale(1.05)}}
+    radial-gradient(ellipse 80% 50% at 20% -10%,rgba(139,92,246,0.15) 0%,transparent 50%),
+    radial-gradient(ellipse 60% 60% at 90% 100%,rgba(6,182,212,0.1) 0%,transparent 50%),
+    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(139,92,246,0.04) 0%,transparent 70%);
+  pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;display:grid;grid-template-columns:320px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:14px 20px;
+  border-bottom:1px solid var(--c-border);backdrop-filter:blur(16px) saturate(1.2);
+  background:rgba(9,9,11,0.8);position:sticky;top:0;z-index:50}
+.logo{font-family:var(--font);font-size:1.15rem;font-weight:600;letter-spacing:-.02em;color:var(--c-text);white-space:nowrap}
+.logo span{font-size:.68rem;font-weight:500;color:var(--c-dim);letter-spacing:.04em;display:block;margin-top:2px}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#kbLabel{font-family:var(--mono);font-size:.7rem;color:var(--c-dim);padding:4px 10px;
+  border:1px solid var(--c-border);border-radius:6px;background:var(--c-panel)}
 
-/* LAYOUT */
-.app{position:relative;z-index:1;display:grid;grid-template-columns:340px 1fr;grid-template-rows:auto 1fr;min-height:100vh;gap:0}
-.topbar{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:12px 20px;
-  border-bottom:1px solid var(--c-border);backdrop-filter:blur(20px);
-  background:rgba(8,11,20,0.85);position:sticky;top:0;z-index:50}
-.logo{font-family:var(--font);font-size:1.5rem;font-weight:700;letter-spacing:.1em;
-  background:linear-gradient(135deg,var(--c-rh),var(--c-lh));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 12px rgba(0,255,179,.4));white-space:nowrap}
-.logo span{font-size:.65rem;opacity:.5;letter-spacing:.18em;display:block;-webkit-text-fill-color:var(--c-dim)}
-.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
-#kbLabel{font-family:var(--mono);font-size:.72rem;color:var(--c-accent);padding:5px 12px;
-  border:1px solid rgba(0,255,179,.25);border-radius:20px;background:rgba(0,255,179,.06)}
-
-/* SIDEBAR */
-.sidebar{border-right:1px solid var(--c-border);display:flex;flex-direction:column;height:calc(100vh - 49px);
-  position:sticky;top:49px;overflow:hidden;background:rgba(8,11,20,.7);backdrop-filter:blur(20px)}
-.sidebar-tabs{display:flex;border-bottom:1px solid var(--c-border)}
-.stab{flex:1;padding:10px 6px;text-align:center;font-size:.8rem;font-weight:600;letter-spacing:.06em;
-  cursor:pointer;color:var(--c-dim);transition:all .2s;border-bottom:2px solid transparent;text-transform:uppercase}
-.stab.active{color:var(--c-accent);border-bottom-color:var(--c-accent)}
+.sidebar{border-right:1px solid var(--c-border);display:flex;flex-direction:column;height:calc(100vh - 53px);
+  position:sticky;top:53px;overflow:hidden;background:var(--c-surface)}
+.sidebar-tabs{display:flex;border-bottom:1px solid var(--c-border);padding:0 8px;gap:2px}
+.stab{flex:1;padding:10px 4px;text-align:center;font-size:.72rem;font-weight:500;
+  cursor:pointer;color:var(--c-dim);transition:color .15s,background .15s;border-radius:6px 6px 0 0;margin-top:6px}
+.stab.active{color:var(--c-text);background:var(--c-panel)}
 .stab:hover{color:var(--c-text)}
-.sidebar-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px}
-.sidebar-body::-webkit-scrollbar{width:4px}
-.sidebar-body::-webkit-scrollbar-thumb{background:rgba(0,255,179,.3);border-radius:2px}
+.sidebar-body{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
-
-/* ITEM PICKER */
 .search-box{position:relative;margin-bottom:10px}
-.search-box input{width:100%;padding:9px 10px 9px 34px;font-family:var(--mono);font-size:.8rem}
-.search-box::before{content:'⌕';position:absolute;left:11px;top:50%;transform:translateY(-50%);
-  color:var(--c-dim);font-size:1.1rem;pointer-events:none}
-.item-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;max-height:calc(100vh - 260px);overflow-y:auto}
-.item-grid::-webkit-scrollbar{width:3px}
-.item-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.item-chip{padding:7px 9px;border-radius:var(--r-sm);background:var(--c-panel);border:1px solid var(--c-border);
-  font-size:.76rem;font-weight:500;cursor:grab;transition:all .18s;user-select:none;
-  display:flex;align-items:center;gap:5px;letter-spacing:.02em;
-  -webkit-tap-highlight-color:transparent}
-.item-chip:hover{background:rgba(0,255,179,.08);border-color:rgba(0,255,179,.35);color:var(--c-rh)}
-.item-chip:active{cursor:grabbing;transform:scale(.96)}
+.search-box input{width:100%;padding:8px 10px 8px 32px;font-family:var(--font);font-size:.82rem}
+.search-box::before{content:'';position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;border:2px solid var(--c-dim);border-radius:50%;pointer-events:none}
+.search-box::after{content:'';position:absolute;left:21px;top:58%;width:6px;height:2px;
+  background:var(--c-dim);transform:rotate(45deg);pointer-events:none}
+.item-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;max-height:calc(100vh - 240px);overflow-y:auto}
+.item-chip{padding:7px 8px;border-radius:var(--r-sm);background:var(--c-panel);border:1px solid var(--c-border);
+  font-size:.74rem;font-weight:500;cursor:grab;transition:border-color .15s,background .15s;user-select:none;
+  display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+.item-chip:hover{background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.35)}
+.item-chip:active{cursor:grabbing}
 .item-chip.dragging{opacity:.4}
-.chip-dot{width:6px;height:6px;border-radius:50%;background:var(--c-dim);flex-shrink:0;transition:background .2s}
+.chip-dot{width:6px;height:6px;border-radius:50%;background:var(--c-dim);flex-shrink:0}
 .item-chip:hover .chip-dot{background:var(--c-accent)}
-
-/* APPEARANCE PANEL */
-.appear-panel{display:flex;flex-direction:column;gap:10px}
-.ap-row{display:flex;align-items:center;gap:8px}
-.ap-label{font-size:.78rem;color:var(--c-dim);width:110px;flex-shrink:0;font-family:var(--mono);font-size:.7rem;cursor:pointer}
-.ap-label:hover{color:var(--c-text)}
-.ap-val{font-family:var(--mono);font-size:.7rem;color:var(--c-accent);width:42px;text-align:right;flex-shrink:0}
-input[type=range]{flex:1;accent-color:var(--c-accent);height:3px;cursor:pointer}
-.rng-dice{cursor:pointer;font-size:.9rem;opacity:.6;flex-shrink:0;transition:opacity .2s}
-.rng-dice:hover{opacity:1}
-input[type=checkbox].dice-cb{accent-color:var(--c-accent);width:15px;height:15px;cursor:pointer;flex-shrink:0}
-.color-prev{width:100%;height:36px;border-radius:var(--r-sm);margin-top:4px;
-  border:1px solid var(--c-border);transition:background .2s}
-
-/* QUICK ADD */
-.qa-section{margin-top:4px}
-.qa-title{font-size:.68rem;font-family:var(--mono);color:var(--c-dim);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
-.qa-slot-pick{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:10px}
+.appear-panel{display:flex;flex-direction:column;gap:12px}
+.color-preview-box{height:56px;border-radius:var(--r);border:1px solid var(--c-border);
+  transition:background .15s;position:relative;overflow:hidden}
+.color-preview-box::after{content:attr(data-label);position:absolute;inset:0;display:flex;
+  align-items:center;justify-content:center;font-family:var(--mono);font-size:.68rem;
+  color:rgba(255,255,255,0.85);text-shadow:0 1px 3px rgba(0,0,0,0.6);pointer-events:none}
+.slider-row{display:flex;flex-direction:column;gap:6px}
+.slider-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.slider-label{font-size:.75rem;color:var(--c-dim);font-weight:500}
+.slider-val{font-family:var(--mono);font-size:.72rem;color:var(--c-text);
+  width:52px;text-align:center;padding:3px 6px;border-radius:4px;
+  background:var(--c-panel);border:1px solid var(--c-border)}
+.slider-meta{display:flex;align-items:center;gap:8px}
+.rand-pill{font-size:.65rem;padding:3px 8px;border-radius:999px;border:1px solid var(--c-border);
+  background:transparent;color:var(--c-dim);cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap}
+.rand-pill.on{background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.4);color:#c4b5fd}
+input[type=range]{width:100%;height:6px;-webkit-appearance:none;appearance:none;
+  background:var(--c-border);border-radius:3px;cursor:pointer;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--c-text);border:2px solid var(--c-accent);box-shadow:0 0 0 2px rgba(139,92,246,0.3)}
+input[type=range].hue-track{background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+input[type=range].sat-track{background:linear-gradient(90deg,#888,var(--sat-end,#8b5cf6))}
+.section-label{font-size:.68rem;font-family:var(--mono);color:var(--c-dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.hint{font-size:.72rem;color:var(--c-dim);line-height:1.5}
+.toggle-row{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.78rem;color:var(--c-dim)}
+.toggle-row input{accent-color:var(--c-accent);width:15px;height:15px}
+.qa-section{margin-top:2px}
+.qa-title{font-size:.68rem;font-family:var(--mono);color:var(--c-dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.qa-slot-pick{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px}
 .slot-btn{padding:6px 2px;border-radius:var(--r-sm);border:1px solid var(--c-border);
-  background:var(--c-panel);font-size:.68rem;font-weight:600;cursor:pointer;
-  transition:all .18s;text-align:center;letter-spacing:.02em;color:var(--c-dim)}
+  background:var(--c-panel);font-size:.66rem;font-weight:500;cursor:pointer;
+  transition:all .15s;text-align:center;color:var(--c-dim)}
 .slot-btn:hover,.slot-btn.sel{border-color:var(--slot-c,var(--c-accent));color:var(--slot-c,var(--c-accent));
-  background:color-mix(in srgb,var(--slot-c,var(--c-accent)) 12%,transparent)}
+  background:color-mix(in srgb,var(--slot-c,var(--c-accent)) 10%,transparent)}
 .slot-btn[data-slot=rightHand]{--slot-c:var(--c-rh)}
 .slot-btn[data-slot=leftHand]{--slot-c:var(--c-lh)}
 .slot-btn[data-slot=rightHip]{--slot-c:var(--c-rhip)}
 .slot-btn[data-slot=leftHip]{--slot-c:var(--c-lhip)}
 .slot-btn[data-slot=back]{--slot-c:var(--c-bk)}
-.amt-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-.amt-row input{width:70px;font-family:var(--mono);font-size:.8rem}
-
-/* BULK */
-.bulk-panel{display:flex;flex-direction:column;gap:10px}
-.bulk-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.toggle-sw{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem;color:var(--c-dim)}
-.toggle-sw input{accent-color:var(--c-accent);width:16px;height:16px}
-.toggle-sw:hover{color:var(--c-text)}
-
-/* BUTTONS */
+.amt-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.amt-row input{width:64px;font-family:var(--mono);font-size:.82rem}
+.qa-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.qa-item{padding:7px 8px;border-radius:var(--r-sm);border:1px solid var(--c-border);
+  background:var(--c-panel);font-size:.74rem;cursor:pointer;transition:all .15s}
+.qa-item:hover{border-color:rgba(139,92,246,0.3);background:rgba(139,92,246,0.06)}
+.qa-item.sel{border-color:var(--c-accent);background:rgba(139,92,246,0.12)}
+.parent-badge{font-size:.72rem;font-family:var(--mono);color:var(--c-accent2);
+  background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);border-radius:6px;
+  padding:6px 8px;margin-bottom:8px;display:none}
+.bulk-panel{display:flex;flex-direction:column;gap:12px}
+.import-zone{border:1px dashed var(--c-border);border-radius:var(--r);padding:16px;text-align:center;
+  cursor:pointer;transition:border-color .15s,background .15s}
+.import-zone:hover{border-color:var(--c-accent);background:rgba(139,92,246,0.04)}
+.import-zone input{display:none}
 .btn{position:relative;overflow:hidden;border:none;border-radius:var(--r-sm);
-  font-family:var(--font);font-size:.88rem;font-weight:600;letter-spacing:.04em;
-  cursor:pointer;padding:9px 18px;transition:transform .12s,box-shadow .2s;
+  font-family:var(--font);font-size:.82rem;font-weight:500;
+  cursor:pointer;padding:8px 14px;transition:opacity .15s,transform .1s;
   -webkit-tap-highlight-color:transparent;white-space:nowrap}
-.btn:active{transform:scale(.955)}
-.btn::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.25);
-  width:0;height:0;left:50%;top:50%;transform:translate(-50%,-50%) scale(0);opacity:1;pointer-events:none}
-.btn.rip::after{animation:rip .5s ease-out forwards}
-@keyframes rip{to{width:260px;height:260px;transform:translate(-50%,-50%) scale(1);opacity:0}}
-.btn-g{background:linear-gradient(135deg,#00cc88,#00ffb3);color:#051a10;box-shadow:0 4px 18px rgba(0,255,179,.3)}
-.btn-g:hover{box-shadow:0 6px 24px rgba(0,255,179,.45)}
-.btn-b{background:linear-gradient(135deg,#0066cc,#00d4ff);color:#fff;box-shadow:0 4px 14px rgba(0,200,255,.3)}
-.btn-r{background:linear-gradient(135deg,#cc1133,#ff4466);color:#fff;box-shadow:0 4px 14px rgba(255,50,80,.3)}
-.btn-o{background:linear-gradient(135deg,#cc7700,#ffaa00);color:#1a0e00;box-shadow:0 4px 14px rgba(255,170,0,.25)}
-.btn-p{background:linear-gradient(135deg,#5533cc,#a78bfa);color:#fff;box-shadow:0 4px 14px rgba(167,139,250,.3)}
-.btn-ghost{background:rgba(255,255,255,.07);color:var(--c-text);border:1px solid var(--c-border)}
-.btn-ghost:hover{background:rgba(255,255,255,.12)}
-.btn-sm{padding:6px 12px;font-size:.78rem}
-.btn-xs{padding:4px 8px;font-size:.72rem;border-radius:6px}
+.btn:active{transform:scale(.98)}
+.btn-g{background:var(--c-accent);color:#fff}
+.btn-g:hover{opacity:.9}
+.btn-b{background:var(--c-accent2);color:#fff}
+.btn-r{background:#ef4444;color:#fff}
+.btn-o{background:#f59e0b;color:#1a1a1a}
+.btn-p{background:#7c3aed;color:#fff}
+.btn-ghost{background:var(--c-panel);color:var(--c-text);border:1px solid var(--c-border)}
+.btn-ghost:hover{background:rgba(255,255,255,0.06)}
+.btn-sm{padding:6px 12px;font-size:.76rem}
+.btn-xs{padding:3px 7px;font-size:.7rem;border-radius:5px}
 .btn-full{width:100%}
-.btn-icon{border-radius:50%;width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem}
-
-/* MAIN AREA */
-.main{padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-
-/* SLOT CARDS */
-.slot-card{border-radius:var(--r);border:1px solid var(--c-border);
-  background:var(--c-panel);backdrop-filter:blur(16px);
-  box-shadow:0 4px 24px var(--c-shadow),inset 0 1px 0 var(--c-hi);
-  transition:box-shadow .2s,border-color .2s;overflow:hidden}
+.main{padding:16px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.slot-card{border-radius:var(--r);border:1px solid var(--c-border);background:var(--c-panel);
+  transition:border-color .15s,box-shadow .15s;overflow:hidden;margin-bottom:10px}
 .slot-card.drop-active{border-color:var(--slot-accent,var(--c-accent));
-  background:color-mix(in srgb,var(--slot-accent,var(--c-accent)) 8%,transparent);
-  box-shadow:0 0 0 2px color-mix(in srgb,var(--slot-accent,var(--c-accent)) 30%,transparent),0 4px 24px var(--c-shadow)}
-.slot-header{display:flex;align-items:center;gap:10px;padding:11px 14px;
-  border-bottom:1px solid var(--c-border);cursor:pointer;user-select:none;
-  background:rgba(0,0,0,.15)}
-.slot-dot{width:10px;height:10px;border-radius:50%;background:var(--slot-accent,var(--c-accent));
-  box-shadow:0 0 8px var(--slot-accent,var(--c-accent));flex-shrink:0}
-.slot-label{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--slot-accent,var(--c-accent))}
-.slot-count{font-family:var(--mono);font-size:.68rem;color:var(--c-dim);margin-left:auto}
-.slot-chevron{color:var(--c-dim);font-size:.7rem;transition:transform .25s;flex-shrink:0}
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--slot-accent,var(--c-accent)) 40%,transparent)}
+.slot-header{display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border-bottom:1px solid var(--c-border);cursor:pointer;user-select:none}
+.slot-dot{width:8px;height:8px;border-radius:50%;background:var(--slot-accent,var(--c-accent));flex-shrink:0}
+.slot-label{font-size:.8rem;font-weight:600;color:var(--c-text)}
+.slot-count{font-family:var(--mono);font-size:.65rem;color:var(--c-dim);margin-left:auto}
+.slot-chevron{color:var(--c-dim);font-size:.65rem;transition:transform .2s;flex-shrink:0}
 .slot-card.collapsed .slot-chevron{transform:rotate(-90deg)}
-.slot-body{padding:10px;display:flex;flex-direction:column;gap:6px;min-height:48px;
-  transition:min-height .3s}
+.slot-body{padding:10px;display:flex;flex-direction:column;gap:5px;min-height:44px}
 .slot-body.collapsed{display:none}
-.slot-empty{text-align:center;padding:14px;color:var(--c-dim);font-size:.78rem;font-family:var(--mono);
+.slot-empty{text-align:center;padding:16px;color:var(--c-dim);font-size:.74rem;font-family:var(--mono);
   border:1px dashed var(--c-border);border-radius:var(--r-sm);pointer-events:none}
-
-/* ITEM NODES */
-.item-node{border-radius:var(--r-sm);border:1px solid var(--c-border);
-  background:rgba(255,255,255,.04);transition:all .18s;
-  position:relative;overflow:hidden}
-.item-node::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);pointer-events:none}
-.item-node-head{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:grab;position:relative}
+.item-node{border-radius:var(--r-sm);border:1px solid var(--c-border);background:rgba(255,255,255,0.02);
+  transition:border-color .15s,background .15s;position:relative}
+.item-node.sel-parent{outline:2px solid var(--c-accent);outline-offset:1px}
+.item-node-head{display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:grab}
 .item-node-head:active{cursor:grabbing}
 .item-node.dragging{opacity:.35;border-style:dashed}
 .item-node.drag-over{border-color:var(--c-drag);background:var(--c-drop)}
-.item-node:hover{background:rgba(255,255,255,.07)}
-.node-color{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,.2)}
-.node-name{font-size:.82rem;font-weight:600;flex:1;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.node-id{font-family:var(--mono);font-size:.62rem;color:var(--c-dim);max-width:140px;
+.item-node:hover{background:rgba(255,255,255,0.04)}
+.node-color{width:10px;height:10px;border-radius:3px;flex-shrink:0;border:1px solid rgba(255,255,255,0.15)}
+.node-name{font-size:.78rem;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.node-id{font-family:var(--mono);font-size:.6rem;color:var(--c-dim);max-width:120px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.node-actions{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.node-actions{display:flex;gap:2px;align-items:center;flex-shrink:0}
 .node-btn{border:none;background:transparent;color:var(--c-dim);cursor:pointer;
-  padding:3px 5px;border-radius:5px;font-size:.75rem;transition:all .15s;line-height:1}
-.node-btn:hover{background:rgba(255,255,255,.1);color:var(--c-text)}
-.node-btn.del:hover{background:rgba(255,50,80,.2);color:#ff6680}
-.node-children{padding-left:14px;display:flex;flex-direction:column;gap:5px;
-  border-left:2px solid rgba(255,255,255,.08);margin:0 10px 8px 20px}
+  padding:4px 6px;border-radius:4px;font-size:.72rem;transition:all .12s;line-height:1}
+.node-btn:hover{background:rgba(255,255,255,0.08);color:var(--c-text)}
+.node-btn.del:hover{background:rgba(239,68,68,0.15);color:#f87171}
+.node-children{padding-left:12px;display:flex;flex-direction:column;gap:4px;
+  border-left:1px solid var(--c-border);margin:0 10px 8px 18px}
 .node-children.drop-zone.over{border-left-color:var(--c-accent)}
-.node-bag-badge{font-size:.7rem;opacity:.7;flex-shrink:0;margin-right:2px}
-.item-node.drag-over-bag{border-color:#a78bfa!important;background:rgba(167,139,250,.12)!important;
-  box-shadow:0 0 0 2px rgba(167,139,250,.3)!important}
-.item-node.drag-over-bag .item-node-head::after{content:'Drop → add as child';position:absolute;
-  right:8px;font-size:.62rem;font-family:var(--mono);color:#a78bfa;pointer-events:none}
-.node-prop{font-family:var(--mono);font-size:.67rem;color:var(--c-dim);
-  padding:2px 10px 6px 28px;display:flex;gap:12px;flex-wrap:wrap}
-.node-prop span{color:var(--c-accent)}
-.add-child-bar{padding:4px 10px 6px;display:flex;gap:5px;align-items:center;
-  border-top:1px solid var(--c-border)}
-.drop-line{height:3px;border-radius:2px;background:var(--c-accent);
-  display:none;margin:2px 0;transition:all .15s}
+.node-bag-badge{font-size:.65rem;opacity:.6;flex-shrink:0}
+.item-node.drag-over-bag{border-color:#a78bfa;background:rgba(167,139,250,0.1)}
+.item-node.drag-over-bag .item-node-head::after{content:'Drop to nest';position:absolute;right:8px;
+  font-size:.6rem;font-family:var(--mono);color:#a78bfa;pointer-events:none}
+.node-prop{font-family:var(--mono);font-size:.64rem;color:var(--c-dim);
+  padding:0 10px 6px 28px;display:flex;gap:10px;flex-wrap:wrap}
+.node-prop span{color:var(--c-accent2)}
+.add-child-bar{padding:4px 10px 6px;border-top:1px solid var(--c-border);
+  font-size:.64rem;color:var(--c-dim);font-family:var(--mono)}
+.drop-line{height:2px;border-radius:1px;background:var(--c-accent);display:none;margin:2px 0}
 .drop-line.show{display:block}
-
-/* ITEM EDITOR (inline) */
-.node-editor{padding:10px 12px;border-top:1px solid var(--c-border);
-  background:rgba(0,0,0,.2);display:flex;flex-direction:column;gap:8px}
+.node-editor{padding:10px 12px;border-top:1px solid var(--c-border);background:rgba(0,0,0,0.2);
+  display:flex;flex-direction:column;gap:8px}
 .editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .editor-field{display:flex;flex-direction:column;gap:3px}
-.editor-field label{font-size:.68rem;color:var(--c-dim);font-family:var(--mono);letter-spacing:.08em}
-.editor-field input,.editor-field select{font-family:var(--mono);font-size:.78rem;padding:6px 8px}
+.editor-field label{font-size:.66rem;color:var(--c-dim);font-family:var(--mono)}
+.editor-field input,.editor-field select{font-family:var(--mono);font-size:.76rem;padding:6px 8px}
 .editor-field input[type=range]{padding:0;margin-top:4px}
-
-/* INPUTS */
 input[type=text],input[type=number],select,textarea{
-  background:rgba(255,255,255,.06);border:1px solid var(--c-border);border-radius:var(--r-sm);
-  color:var(--c-text);font-family:var(--font);font-size:.88rem;padding:8px 10px;
-  outline:none;transition:border-color .2s,box-shadow .2s}
-input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{
-  border-color:var(--c-accent);box-shadow:0 0 0 3px rgba(0,255,179,.12)}
+  background:var(--c-panel);border:1px solid var(--c-border);border-radius:var(--r-sm);
+  color:var(--c-text);font-family:var(--font);font-size:.84rem;padding:7px 10px;
+  outline:none;transition:border-color .15s}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:var(--c-accent)}
 select{cursor:pointer}
-select option{background:#111827;color:var(--c-text)}
-
-/* JSON OUTPUT */
-.json-out{background:rgba(0,0,0,.4);border:1px solid var(--c-border);border-radius:var(--r);
-  padding:14px;font-family:var(--mono);font-size:.72rem;color:#a8d8a8;
-  max-height:260px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;
-  line-height:1.6}
-.json-out::-webkit-scrollbar{width:3px}
-.json-out::-webkit-scrollbar-thumb{background:rgba(0,255,179,.3)}
-
-/* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);
+select option{background:#18181b;color:var(--c-text)}
+.json-out{background:#0c0c0e;border:1px solid var(--c-border);border-radius:var(--r);
+  padding:14px;font-family:var(--mono);font-size:.72rem;color:#a1a1aa;
+  max-height:calc(100vh - 200px);overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.55}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);
   z-index:200;align-items:center;justify-content:center}
-.overlay.show{display:flex;animation:fadein .18s}
-@keyframes fadein{from{opacity:0}to{opacity:1}}
-.modal{background:rgba(12,16,28,.95);border:1px solid var(--c-border);border-radius:20px;
-  padding:24px;width:360px;max-width:95vw;max-height:90vh;overflow-y:auto;
-  box-shadow:0 24px 60px rgba(0,0,0,.7),inset 0 1px 0 var(--c-hi);
-  animation:slideup .22s cubic-bezier(.17,.67,.27,1.1)}
-@keyframes slideup{from{transform:translateY(20px) scale(.97);opacity:0}to{transform:none;opacity:1}}
-.modal h3{font-size:.72rem;font-family:var(--mono);color:var(--c-accent);letter-spacing:.18em;
-  text-transform:uppercase;margin-bottom:18px}
+.overlay.show{display:flex}
+.modal{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r);
+  padding:20px;width:380px;max-width:95vw;max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 48px rgba(0,0,0,0.5)}
+.modal h3{font-size:.72rem;font-family:var(--mono);color:var(--c-dim);letter-spacing:.06em;
+  text-transform:uppercase;margin-bottom:16px}
 .modal-btns{display:flex;flex-direction:column;gap:8px}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;z-index:300;background:rgba(12,16,28,.95);
-  border:1px solid var(--c-accent);border-radius:12px;padding:12px 20px;
-  font-size:.84rem;font-family:var(--mono);color:var(--c-accent);
-  box-shadow:0 8px 32px rgba(0,0,0,.5);
-  animation:toastin .3s cubic-bezier(.17,.67,.27,1.1)}
-@keyframes toastin{from{transform:translateY(20px);opacity:0}}
-
-/* TABS in main */
-.main-tabs{display:flex;gap:6px;border-bottom:1px solid var(--c-border);padding-bottom:8px}
-.mtab{padding:7px 16px;border-radius:var(--r-sm) var(--r-sm) 0 0;font-size:.82rem;font-weight:600;
-  cursor:pointer;color:var(--c-dim);border:1px solid transparent;transition:all .18s;letter-spacing:.04em}
-.mtab.active{color:var(--c-accent);border-color:var(--c-border);border-bottom-color:transparent;
-  background:rgba(255,255,255,.04)}
+.toast{position:fixed;bottom:20px;right:20px;z-index:300;background:var(--c-surface);
+  border:1px solid var(--c-border);border-radius:var(--r-sm);padding:10px 16px;
+  font-size:.8rem;color:var(--c-text);box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  animation:toastin .25s ease-out}
+@keyframes toastin{from{transform:translateY(12px);opacity:0}}
+.main-tabs{display:flex;gap:4px;border-bottom:1px solid var(--c-border);padding-bottom:8px}
+.mtab{padding:6px 14px;border-radius:var(--r-sm);font-size:.78rem;font-weight:500;
+  cursor:pointer;color:var(--c-dim);border:1px solid transparent;transition:all .15s}
+.mtab.active{color:var(--c-text);border-color:var(--c-border);background:var(--c-panel)}
 .mtab:hover{color:var(--c-text)}
 .mtab-panel{display:none}
 .mtab-panel.active{display:block}
-
-/* SCROLLBARS */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:rgba(255,255,255,.02);border-radius:3px}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(0,255,179,.3)}
-
-/* RESPONSIVE */
+.divider{border:none;border-top:1px solid var(--c-border);margin:4px 0}
 @media(max-width:768px){
-  .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}
+  .app{grid-template-columns:1fr}
   .sidebar{height:auto;position:relative;top:0}
-  .item-grid{max-height:220px}
+  .item-grid{max-height:200px}
 }
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- TOP BAR -->
 <header class="topbar">
-  <div class="logo">XMOD<br><span>JSON MAKER V10</span></div>
+  <div class="logo">xmod json maker<span>loadout editor</span></div>
   <div id="kbLabel">0.00 kb</div>
   <div class="topbar-right">
-    <button class="btn btn-g btn-sm" onclick="dlJson()">⬇ Export JSON</button>
-    <button class="btn btn-ghost btn-sm" onclick="clearAll()">✕ Clear All</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFile').click()">Import</button>
+    <input type="file" id="importFile" accept=".json" style="display:none">
+    <button class="btn btn-g btn-sm" onclick="dlJson()">Export</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearAll()">Clear</button>
   </div>
 </header>
-
-<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-tabs">
     <div class="stab active" data-tab="picker">Items</div>
@@ -292,291 +245,248 @@ select option{background:#111827;color:var(--c-text)}
   </div>
   <div class="sidebar-body">
 
-    <!-- ITEM PICKER TAB -->
     <div class="tab-panel active" id="tab-picker">
       <div class="search-box">
-        <input type="text" id="itemSearch" placeholder="Search 479 items…" autocomplete="off">
+        <input type="text" id="itemSearch" placeholder="Search items…" autocomplete="off">
       </div>
       <div class="item-grid" id="itemGrid"></div>
     </div>
 
-    <!-- APPEARANCE TAB -->
     <div class="tab-panel" id="tab-appear">
       <div class="appear-panel">
-        <div class="qa-title">Color &amp; Size</div>
-        <div class="ap-row">
-          <input type="checkbox" class="dice-cb" id="cR" title="Randomize">
-          <span class="ap-label" onclick="promptSlider('colorSl','Color Hue',0,240,0)">Hue</span>
-          <input type="range" id="colorSl" min="0" max="240" value="161">
-          <span class="ap-val" id="colorVal">161</span>
+        <div class="section-label">Preview</div>
+        <div class="color-preview-box" id="colorPrev" data-label=""></div>
+        <label class="toggle-row">
+          <input type="checkbox" id="applyColor" checked>
+          Apply color &amp; size to new items
+        </label>
+        <hr class="divider">
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="slider-label">Hue</span>
+            <div class="slider-meta">
+              <span class="rand-pill" data-rand="cR">Random</span>
+              <input type="number" class="slider-val" id="colorVal" min="0" max="240" value="161">
+            </div>
+          </div>
+          <input type="range" class="hue-track" id="colorSl" min="0" max="240" value="161">
         </div>
-        <div class="ap-row">
-          <input type="checkbox" class="dice-cb" id="saR" title="Randomize">
-          <span class="ap-label" onclick="promptSlider('satSl','Saturation',-124,124,124)">Saturation</span>
-          <input type="range" id="satSl" min="0" max="248" value="240">
-          <span class="ap-val" id="satVal">116</span>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="slider-label">Saturation</span>
+            <div class="slider-meta">
+              <span class="rand-pill" data-rand="saR">Random</span>
+              <input type="number" class="slider-val" id="satVal" min="-124" max="124" value="0">
+            </div>
+          </div>
+          <input type="range" class="sat-track" id="satSl" min="0" max="248" value="124">
         </div>
-        <div class="ap-row">
-          <input type="checkbox" class="dice-cb" id="sR" title="Randomize">
-          <span class="ap-label" onclick="promptSlider('sizeSl','Size',-128,127,128)">Size</span>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="slider-label">Size</span>
+            <div class="slider-meta">
+              <span class="rand-pill" data-rand="sR">Random</span>
+              <input type="number" class="slider-val" id="sizeVal" min="-128" max="127" value="0">
+            </div>
+          </div>
           <input type="range" id="sizeSl" min="0" max="255" value="128">
-          <span class="ap-val" id="sizeVal">0</span>
         </div>
-        <div class="color-prev" id="colorPrev"></div>
-
-        <hr style="border-color:var(--c-border);margin:6px 0">
-        <div class="qa-title">Special Properties</div>
-        <div class="ap-row">
-          <input type="checkbox" class="dice-cb" id="vR" title="Randomize">
-          <span class="ap-label" onclick="promptSlider('stateSl','Value (Shredder)',0,8000,0)">Value</span>
+        <hr class="divider">
+        <div class="section-label">Special</div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="slider-label">Shredder value</span>
+            <div class="slider-meta">
+              <span class="rand-pill" data-rand="vR">Random</span>
+              <input type="number" class="slider-val" id="stateVal" min="0" max="8000" value="0">
+            </div>
+          </div>
           <input type="range" id="stateSl" min="0" max="8000" value="0">
-          <span class="ap-val" id="stateVal">0</span>
         </div>
-        <div class="ap-row">
-          <input type="checkbox" class="dice-cb" id="aR" title="Randomize">
-          <span class="ap-label" onclick="promptSlider('ammoSl','Ammo',0,2,0)">Ammo</span>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="slider-label">Shotgun ammo</span>
+            <div class="slider-meta">
+              <span class="rand-pill" data-rand="aR">Random</span>
+              <input type="number" class="slider-val" id="ammoVal" min="0" max="2" value="0">
+            </div>
+          </div>
           <input type="range" id="ammoSl" min="0" max="2" value="0">
-          <span class="ap-val" id="ammoVal">0</span>
         </div>
-
-        <hr style="border-color:var(--c-border);margin:6px 0">
-        <div class="qa-title">Apply to All Future Items</div>
-        <div style="font-size:.75rem;color:var(--c-dim);line-height:1.5">
-          Check 🎲 on any slider to randomize that property when adding items. Sliders apply to all items added via drag or quick-add.
-        </div>
+        <p class="hint">Toggle Random on any field to randomize it when adding items. Drag items from the Items tab or use Quick Add.</p>
       </div>
     </div>
 
-    <!-- QUICK ADD TAB -->
     <div class="tab-panel" id="tab-quick">
       <div class="qa-section">
-        <div class="qa-title">Target Slot</div>
+        <div class="qa-title">Slot</div>
         <div class="qa-slot-pick" id="slotPicker">
-          <div class="slot-btn sel" data-slot="rightHand">R.Hand</div>
-          <div class="slot-btn" data-slot="leftHand">L.Hand</div>
-          <div class="slot-btn" data-slot="rightHip">R.Hip</div>
-          <div class="slot-btn" data-slot="leftHip">L.Hip</div>
+          <div class="slot-btn sel" data-slot="rightHand">R Hand</div>
+          <div class="slot-btn" data-slot="leftHand">L Hand</div>
+          <div class="slot-btn" data-slot="rightHip">R Hip</div>
+          <div class="slot-btn" data-slot="leftHip">L Hip</div>
           <div class="slot-btn" data-slot="back">Back</div>
         </div>
-        <div class="qa-title">Target Inside (optional)</div>
-        <div style="font-size:.75rem;color:var(--c-dim);margin-bottom:8px">
-          Click any item in the main view to select it as parent, or leave blank to add to slot root.
-        </div>
-        <div id="qaParentLabel" style="font-size:.78rem;font-family:var(--mono);color:var(--c-accent);
-          background:rgba(0,255,179,.07);border:1px solid rgba(0,255,179,.2);border-radius:6px;
-          padding:6px 8px;margin-bottom:10px;display:none"></div>
-        <button class="btn btn-ghost btn-sm btn-full" onclick="clearParent()" style="margin-bottom:10px">
-          Clear Parent Selection
-        </button>
-        <div class="qa-title">Item &amp; Quantity</div>
+        <div class="qa-title">Parent (optional)</div>
+        <p class="hint">Click an item in the loadout to nest inside it.</p>
+        <div class="parent-badge" id="qaParentLabel"></div>
+        <button class="btn btn-ghost btn-sm btn-full" onclick="clearParent()" style="margin-bottom:10px">Clear parent</button>
+        <div class="qa-title">Quantity</div>
         <div class="amt-row">
-          <input type="number" id="qaAmount" value="1" min="1" max="500" style="width:70px">
-          <span style="font-size:.8rem;color:var(--c-dim)">× items</span>
-          <label style="display:flex;align-items:center;gap:5px;font-size:.8rem;cursor:pointer;color:var(--c-dim)">
-            <input type="checkbox" id="qaRng" style="accent-color:var(--c-accent)"> 🎲 Random
-          </label>
+          <input type="number" id="qaAmount" value="1" min="1" max="500">
+          <label class="toggle-row"><input type="checkbox" id="qaRng"> Random item</label>
         </div>
-        <div class="search-box" style="margin-bottom:8px">
+        <div class="search-box">
           <input type="text" id="qaSearch" placeholder="Search items…" autocomplete="off">
         </div>
-        <div id="qaList" style="max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
-        <button class="btn btn-g btn-full" style="margin-top:10px" onclick="quickAdd()">＋ Add to Slot</button>
+        <div class="qa-list" id="qaList"></div>
+        <button class="btn btn-g btn-full" style="margin-top:10px" onclick="quickAdd()">Add to slot</button>
       </div>
     </div>
 
-    <!-- BULK TAB -->
     <div class="tab-panel" id="tab-bulk">
       <div class="bulk-panel">
-        <div class="qa-title">Bypass Bag Generator</div>
-        <div style="font-size:.75rem;color:var(--c-dim);line-height:1.6;margin-bottom:8px">
-          Packs large numbers of items into nested bags. Automatically handles routing and wrapper items.
-        </div>
-        <label class="toggle-sw">
-          <input type="checkbox" id="explodeMode"> 💥 Explode Mode
-          <span style="font-size:.68rem;margin-left:4px" title="Forces items onto heart guns, almost doubles size">(ℹ️)</span>
+        <div class="qa-title">Bypass bag generator</div>
+        <p class="hint">Pack large item counts into nested bags automatically.</p>
+        <label class="toggle-row">
+          <input type="checkbox" id="explodeMode"> Explode mode (heart gun wrappers)
         </label>
-        <div class="qa-title" style="margin-top:8px">Target Slot</div>
-        <div class="qa-slot-pick">
-          <div class="slot-btn sel" data-slot="rightHand" id="bulk-rh">R.Hand</div>
-          <div class="slot-btn" data-slot="leftHand" id="bulk-lh">L.Hand</div>
-          <div class="slot-btn" data-slot="rightHip" id="bulk-rhip">R.Hip</div>
-          <div class="slot-btn" data-slot="leftHip" id="bulk-lhip">L.Hip</div>
-          <div class="slot-btn" data-slot="back" id="bulk-bk">Back</div>
+        <div class="qa-title" style="margin-top:8px">Slot</div>
+        <div class="qa-slot-pick" id="bulkSlotPicker">
+          <div class="slot-btn sel" data-slot="rightHand">R Hand</div>
+          <div class="slot-btn" data-slot="leftHand">L Hand</div>
+          <div class="slot-btn" data-slot="rightHip">R Hip</div>
+          <div class="slot-btn" data-slot="leftHip">L Hip</div>
+          <div class="slot-btn" data-slot="back">Back</div>
         </div>
         <div class="editor-field">
-          <label>Item Count (max 3500)</label>
+          <label>Item count (max 3500)</label>
           <input type="number" id="bulkAmt" value="100" min="1" max="3500">
         </div>
         <div class="editor-field">
-          <label>Item to Pack</label>
-          <select id="bulkItem" style="width:100%"></select>
+          <label>Item to pack</label>
+          <select id="bulkItem"></select>
         </div>
-        <button class="btn btn-o btn-full" onclick="createBypassBag()">📦 Generate Bypass Bag</button>
-
-        <hr style="border-color:var(--c-border)">
-        <div class="qa-title">Share / Upload</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <input type="file" id="jsonFile" accept=".json">
-          <input type="text" id="fileName" placeholder="File name">
-          <input type="text" id="authorName" placeholder="Author name">
-          <button class="btn btn-b btn-full btn-sm" onclick="uploadJson()">⬆ Upload</button>
-          <div id="fileList" style="max-height:140px;overflow-y:auto;font-size:.78rem"></div>
-        </div>
+        <button class="btn btn-o btn-full" onclick="createBypassBag()">Generate bypass bag</button>
       </div>
     </div>
 
   </div>
 </aside>
 
-<!-- MAIN CONTENT -->
 <main class="main" id="mainArea">
   <div class="main-tabs">
-    <div class="mtab active" data-mtab="slots">Loadout Slots</div>
-    <div class="mtab" data-mtab="json">JSON Preview</div>
+    <div class="mtab active" data-mtab="slots">Loadout</div>
+    <div class="mtab" data-mtab="json">JSON</div>
   </div>
-
-  <!-- SLOTS PANEL -->
   <div class="mtab-panel active" id="mtab-slots">
     <div id="slotsContainer"></div>
   </div>
-
-  <!-- JSON PANEL -->
   <div class="mtab-panel" id="mtab-json">
-    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
-      <button class="btn btn-g btn-sm" onclick="dlJson()">⬇ Download JSON</button>
-      <button class="btn btn-ghost btn-sm" onclick="copyJson()">📋 Copy to Clipboard</button>
-      <button class="btn btn-ghost btn-sm" onclick="refreshJsonPreview()">↻ Refresh</button>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-g btn-sm" onclick="dlJson()">Download</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyJson()">Copy</button>
     </div>
-    <pre class="json-out" id="jsonOut">Click "Refresh" to see JSON output</pre>
+    <pre class="json-out" id="jsonOut"></pre>
   </div>
 </main>
 </div>
 
-<!-- ITEM EDITOR MODAL -->
 <div class="overlay" id="editOverlay">
   <div class="modal">
-    <h3>Edit Item</h3>
+    <h3>Edit item</h3>
     <div id="editModalBody"></div>
     <div class="modal-btns" style="margin-top:14px">
-      <button class="btn btn-g btn-full" onclick="saveItemEdit()">✔ Save Changes</button>
-      <button class="btn btn-ghost btn-full" onclick="closeEditModal()">✕ Cancel</button>
+      <button class="btn btn-g btn-full" onclick="saveItemEdit()">Save</button>
+      <button class="btn btn-ghost btn-full" onclick="closeEditModal()">Cancel</button>
     </div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════
 const ALL_ITEMS = [
   {id:'item_snowboard_2',name:'67 Snowboard'},{id:'item_ac_cola',name:'AC Cola'},{id:'item_snowboard',name:'AC Snowboard'},{id:'item_cutie_dead',name:'AN152 Dead Body'},{id:'item_alien_cube',name:'Alien Cube'},{id:'item_alphablade',name:'Alpha Blade'},{id:'item_ampbattery',name:'Amp Battery'},{id:'item_fish_anglerfish',name:'Anglerfish'},{id:'item_anti_gravity_grenade',name:'Anti Gravity Grenade'},{id:'item_apple',name:'Apple'},{id:'item_stick_armbones',name:'Arm Bones (Stick)'},{id:'item_arrow',name:'Arrow'},{id:'item_backpack_space',name:'Astronaut Backpack'},{id:'item_drill',name:'BFD9000'},{id:'item_drill_galaxy',name:'BFD9000-G'},{id:'item_drill_neon',name:'BFD9000-N'},{id:'item_backpack',name:'Backpack'},{id:'item_backpack_with_flashlight',name:'Backpack with Flashlight'},{id:'item_balloon',name:'Balloon'},{id:'item_bamboo_fishing_rod',name:'Bamboo Fishing Rod'},{id:'item_banana',name:'Banana'},{id:'item_banana_chips',name:'Banana Chips'},{id:'item_baseball_bat',name:'Baseball Bat'},{id:'item_basic_fishing_rod',name:'Basic Fishing Rod'},{id:'item_landmine_bee',name:'Bee Mine'},{id:'item_bait_beetle',name:'Beetle'},{id:'item_shield_viking_2',name:'Berserker Shield'},{id:'item_big_cup',name:'Big Cup'},{id:'item_katana_big',name:'Big Katana'},{id:'item_randombox_mobloot_big',name:'Big Mob Loot Box'},{id:'item_fish_big_shark',name:'Big Shark'},{id:'item_bighead_larva',name:'BigHead Larva'},{id:'item_backpack_black',name:'Black Backpack'},{id:'item_pelican_case',name:'Black Crate'},{id:'item_bloodlust_vial',name:'Bloodlust Vial'},{id:'item_brainslug_blue',name:'Blorbo'},{id:'item_egg_easter_blue',name:'Blue Bunny Egg'},{id:'item_fungi_blue',name:'Blue Shroom'},{id:'item_stellarsword_blue',name:'Blue Stellar Sword'},{id:'item_arrow_bomb',name:'Bomb Arrow'},{id:'item_stick_bone',name:'Bone (Stick)'},{id:'item_boombox',name:'Boombox'},{id:'item_boomerang',name:'Boomerang'},{id:'item_fish_boomfish',name:'Boomfish'},{id:'item_rpg_spear',name:'Boomspear'},{id:'item_rpg_ammo_spear',name:'Boomspear Ammo'},{id:'item_fish_boot',name:'Boot'},{id:'item_fish_bottled_message',name:'Bottled Message'},{id:'item_box_fan',name:'Box Fan'},{id:'item_quest_hlal_brain',name:'Brain'},{id:'item_brain_chunk',name:'Brain Matter'},{id:'item_server_pad',name:'Broken Tablet'},{id:'item_broom',name:'Broom'},{id:'item_bubble_gun',name:'Bubble Gun'},{id:'item_bubble_staff',name:'Bubble Staff'},{id:'item_burrito',name:'Burrito'},{id:'item_butcherpipe',name:'Butcher Pipe'},{id:'item_butcherspear',name:'Butcher Spear'},{id:'item_butchersword',name:'Butcher Sword'},{id:'item_ceo_plaque',name:'CEO Plaque'},{id:'item_calculator',name:'Calculator'},{id:'item_beans',name:'Can of Beans'},{id:'item_hammer_candy_cane',name:'Candy Cane Hammer'},{id:'item_metal_rod_xmas',name:'Candy Cane Rod'},{id:'item_shield_candy_cane',name:'Candy Cane Shield'},{id:'item_spear_candy_cane',name:'Candy Cane Spear'},{id:'item_truss_xmas',name:'Candy Cane Truss'},{id:'item_cardboard_box',name:'Cardboard Box'},{id:'item_cardboard_dragon_body',name:'Cardboard Dragon Body'},{id:'item_cardboard_dragon_head',name:'Cardboard Dragon Head'},{id:'item_fish_carp',name:'Carp'},{id:'item_carrot',name:'Carrot'},{id:'item_grappling_hook',name:'Chain Grab'},{id:'item_chakra',name:'Chakra'},{id:'item_axe',name:'Chaos Axe'},{id:'item_moonrock_cheesy',name:'Cheesy Moon Rock'},{id:'item_fish_chewna',name:'Chewna'},{id:'item_ore_hell',name:'Cinder'},{id:'item_fish_clam_hookshot',name:'Clam Hookshot'},{id:'item_clapper',name:'Clapper'},{id:'item_umbrella_clover',name:'Clover Umbrella'},{id:'item_cluster_grenade',name:'Cluster Grenade'},{id:'item_coconut_shell',name:'Coconut Shell'},{id:'item_cola',name:'Cola'},{id:'item_company_ration',name:'Company Ration'},{id:'item_company_ration_heal',name:'Company Ration (Heal)'},{id:'item_ore_copper_m',name:'Copper Chunk'},{id:'item_fish_cowfish',name:'Cowfish'},{id:'item_cracker',name:'Cracker'},{id:'item_fish_crappie',name:'Crappie'},{id:'item_crate',name:'Crate'},{id:'item_fish_crispie',name:'Crispie'},{id:'item_crossbow',name:'Crossbow'},{id:'item_crowbar',name:'Crowbar'},{id:'item_dynamite_cube',name:'Cube Dynamite'},{id:'item_cube_frame',name:'Cube Frame'},{id:'item_pickaxe_cube',name:'Cube Pickaxe'},{id:'item_cubetrident',name:'Cube Trident'},{id:'item_fish_cube',name:'Cursed Cubefish'},{id:'item_metal_rod_curved',name:'Curved Metal Rod'},{id:'item_d20',name:'D20'},{id:'item_disc',name:'DVD'},{id:'item_viking_hammer',name:'Dawn Hammer'},{id:'item_deadmans_draw',name:"Deadman's Draw"},{id:'item_deadmans_draw_card',name:"Deadman's Draw Card"},{id:'item_energy_sword_red',name:'Delta Blade'},{id:'item_demon_sword',name:'Demon Sword'},{id:'item_fish_diamond_jade_koi',name:'Diamond Jade Koi'},{id:'item_disposable_camera',name:'Disposable Camera'},{id:'item_fish_dollar_bill',name:'Dollar Bill'},{id:'item_fish_dragonfish',name:'Dragon Fish'},{id:'item_pistol_dragon',name:'Dragon Pistol'},{id:'item_dragons_claw',name:"Dragon's Claw"},{id:'item_drill_fists',name:'Drill Fist'},{id:'item_dwarven_hammer',name:'Dwarven Hammer'},{id:'item_pickaxe_spacedwarf',name:'Dwarven Pickaxe'},{id:'item_dynamite',name:'Dynamite'},{id:'item_easter_egg',name:'Easter Egg'},{id:'item_egg',name:'Egg'},{id:'item_rpg_easter',name:'Egg Launcher RPG'},{id:'item_rpg_ammo_egg',name:'Egg RPG Ammo'},{id:'item_electrical_tape',name:'Electrical Tape'},{id:'item_toilet_paper_roll_empty',name:'Empty Toilet Paper Roll'},{id:'item_harddrive',name:'Encrypted Data'},{id:'item_eraser',name:'Eraser'},{id:'item_quest_hlal_eyeball',name:'Eyeball'},{id:'item_metal_plate_xmas',name:'Festive Plate'},{id:'item_film_reel',name:'Film Reel'},{id:'item_finger_board',name:'Finger Board'},{id:'item_backpack_fish',name:'Fish Backpack'},{id:'item_boombox_fishing',name:'Fishing Boombox'},{id:'item_special_fishing_rod_radar_part',name:'Fishing Rod Radar Part'},{id:'item_fishing_terminal_bait_button',name:'Fishing Terminal Bait Button'},{id:'item_fish_fishsword',name:'Fishsword'},{id:'item_flamethrower',name:'Flamethrower'},{id:'item_flamethrower_skull',name:'Flamethrower Skull'},{id:'item_snowboard_3',name:'Flaming Eye Snowboard'},{id:'item_flaregun',name:'Flaregun'},{id:'item_flashbang',name:'Flashbang'},{id:'item_flashlight',name:'Flashlight'},{id:'item_quest_hlal_flesh',name:'Flesh'},{id:'item_floppy3',name:'Floppy Disc'},{id:'item_floppy5',name:'Floppy Disc'},{id:'item_bait_fly',name:'Fly'},{id:'item_football',name:'Football'},{id:'item_four_leaf_clover',name:'Four Leaf Clover'},{id:'item_four_leaf_radar',name:'Four Leaf Radar'},{id:'item_friend_launcher',name:'Friend Launcher'},{id:'item_frying_pan',name:'Frying Pan'},{id:'item_flashlight_galaxy',name:'Galaxy Flashlight'},{id:'item_great_sword_galaxy',name:'Galaxy Great Sword'},{id:'item_hookshot_galaxy',name:'Galaxy Hookshot'},{id:'item_hoverpad_galaxy',name:'Galaxy Hoverpad'},{id:'item_robot_arm_left_galaxy',name:'Galaxy Left Robot Arm'},{id:'item_pickaxe_realistic_galaxy',name:'Galaxy P!ck@x='},{id:'item_robot_arm_right_galaxy',name:'Galaxy Right Robot Arm'},{id:'item_shield_galaxy',name:'Galaxy Shield'},{id:'item_snowboard_galaxy',name:'Galaxy Snowboard'},{id:'item_teleport_gun_galaxy',name:'Galaxy Teleport Gun'},{id:'item_gameboy',name:'Game Box'},{id:'item_energy_axe',name:'Gamma Axe'},{id:'item_energy_sword_green',name:'Gamma Blade'},{id:'item_wheelhandle_big',name:'Giant Wheelhandle'},{id:'item_pickaxe_cny',name:'Gilded Pickaxe'},{id:'item_steel_beam_xmas',name:'Gingerbread Beam'},{id:'item_glitched_banana',name:'Glitchy Banana'},{id:'item_bait_glowworm',name:'Glow Worm'},{id:'item_glowstick',name:'Glowstick'},{id:'item_goldbar',name:'Gold Bar'},{id:'item_ore_gold_m',name:'Gold Chunk'},{id:'item_fish_gold_fish',name:'Gold Fish'},{id:'item_revolver_gold',name:'Gold Revolver'},{id:'item_shotgun_gold',name:'Gold Shotgun'},{id:'item_stellarsword_gold',name:'Gold Stellar Sword'},{id:'item_goldcoin',name:'Golden Coin'},{id:'item_four_leaf_clover_gold',name:'Golden Four Leaf Clover'},{id:'item_grenade_gold',name:'Golden Grenade'},{id:'item_ukulele_gold',name:'Golden Ukulele'},{id:'item_brainslug_green',name:'Goobert'},{id:'item_eye_googly',name:'Googly Eye'},{id:'item_goop',name:'Goop'},{id:'item_goopfish',name:'Goopfish'},{id:'item_quest_key_graveyard',name:'Graveyard Key'},{id:'item_great_sword',name:'Great Sword'},{id:'item_backpack_green',name:'Green Backpack'},{id:'item_grenade_launcher',name:'Grenade Launcher'},{id:'item_guided_boomerang',name:'Guided Boomerang'},{id:'item_hatchet',name:'Hatchet'},{id:'item_hh_key',name:'Haunted House Key'},{id:'item_hawaiian_drum',name:'Hawaiian Drums'},{id:'item_quest_hlal_heart',name:'Heart'},{id:'item_arrow_heart',name:'Heart Arrow'},{id:'item_balloon_heart',name:'Heart Balloon'},{id:'item_heartchocolatebox',name:'Heart Chocolate Box'},{id:'item_heart_chunk',name:'Heart Chunk'},{id:'item_crossbow_heart',name:'Heart Crossbow'},{id:'item_heart_gun',name:'Heart Gun'},{id:'item_quiver_heart',name:'Heart Quiver'},{id:'item_hookshot',name:'Hookshot'},{id:'item_hot_cocoa',name:'Hot Chocolate'},{id:'item_hoverpad',name:'Hoverpad'},{id:'item_batterycell_hydra',name:'Hydra Batterycell Ammo'},{id:'item_hydra',name:'Hydra Energy Blaster'},{id:'item_fish_hydracarp',name:'Hydracarp'},{id:'item_grenade',name:'Impact Grenade'},{id:'item_impulse_grenade',name:'Impulse Grenade'},{id:'item_fish_irontusk',name:'Irontusk'},{id:'item_brainslug_pink',name:'Jelly'},{id:'item_jetpack',name:'Jetpack'},{id:'item_quest_gy_skull_special',name:'Jeweled Skull'},{id:'item_joystick',name:'Joystick'},{id:'item_joystick_inv_y',name:'Joystick (Inversed Y)'},{id:'item_shadowboss_key',name:'Key of the Fallen One'},{id:'item_keycard',name:'Keycard'},{id:'item_fish_kissy',name:'Kissy'},{id:'item_lance',name:'Lance'},{id:'item_landmine',name:'Landmine'},{id:'item_lantern_cny',name:'Lantern'},{id:'item_backpack_large_base',name:'Large Backpack'},{id:'item_large_banana',name:'Large Banana'},{id:'item_backpack_large_basketball',name:'Large Basketball Print Backpack'},{id:'item_backpack_large_clover',name:'Large Clover Print Backpack'},{id:'item_cola_large',name:'Large Cola'},{id:'item_ore_copper_l',name:'Large Copper Chunk'},{id:'item_ore_gold_l',name:'Large Gold Chunk'},{id:'item_needle',name:'Large Needle'},{id:'item_ore_silver_l',name:'Large Silver Chunk'},{id:'item_uranium_chunk_l',name:'Large Uranium Chunk'},{id:'item_lava_fishing_rod',name:'Lava Fishing Rod'},{id:'item_robot_arm_left',name:'Left Robot Arm'},{id:'item_fish_license_plate',name:'License Plate'},{id:'item_arrow_lightbulb',name:'Lightbulb Arrow'},{id:'item_love_grenade',name:'Love Bomb'},{id:'item_fish_magma_carp',name:'Magma Carp'},{id:'item_bait_magmar_ball',name:'Magmar Ball'},{id:'item_mannequin_head',name:'Mannequin Head'},{id:'item_mannequin_arm_left',name:'Mannequin Left Arm'},{id:'item_mannequin_leg_left',name:'Mannequin Left Leg'},{id:'item_mannequin_arm_right',name:'Mannequin Right Arm'},{id:'item_mannequin_leg_right',name:'Mannequin Right Leg'},{id:'item_mannequin_torso',name:'Mannequin Torso'},{id:'item_marshmallow_bunny_bomb',name:'Marshmallow Bunny Bomb'},{id:'item_fish_teeth',name:'Meateating Spiritfish'},{id:'item_katana_medium',name:'Medium Katana'},{id:'item_ampbattery_mega',name:'Mega Amp Battery'},{id:'item_radioactive_broccoli',name:'Mega Broccoli'},{id:'item_broccoli_grenade',name:'Mega Broccoli Bomb'},{id:'item_flashlight_mega',name:'Mega Flashlight'},{id:'item_toilet_paper_mega',name:'Mega Toilet Paper'},{id:'item_megaphone',name:'Megaphone'},{id:'item_metal_ball',name:'Metal Ball'},{id:'item_metal_plate',name:'Metal Plate'},{id:'item_metal_rod',name:'Metal Rod'},{id:'item_metal_triangle',name:'Metal Triangle'},{id:'item_shrinking_broccoli',name:'Micro Broccoli'},{id:'item_broccoli_shrink_grenade',name:'Micro Broccoli Bomb'},{id:'item_mining_laser',name:'Mining Laser'},{id:'item_randombox_mobloot_medium',name:'Mob Loot Box'},{id:'item_randombox_mobloot_weapons',name:'Mob Weapons Loot Box'},{id:'item_momboss_box',name:'Mom Box'},{id:'item_moneygun',name:'Money Gun'},{id:'item_backpack_monkey',name:'Monkey Backpack'},{id:'item_moonrock',name:'Moon Rock'},{id:'item_mountain_key',name:'Mountain Key'},{id:'item_bait_mouse_trap',name:'Mouse Trap'},{id:'item_mug',name:'Mug'},{id:'item_fish_nebula_fish',name:'Nebula'},{id:'item_boombox_neon',name:'Neon Boombox'},{id:'item_glowing_fishing_rod',name:'Neon Fishing Rod'},{id:'item_nut',name:'Nut'},{id:'item_nut_drop',name:'Nut Drop'},{id:'item_shredder',name:'Nut Shredder'},{id:'item_fish_nutfish',name:'Nutfish'},{id:'item_randombox_mobloot_weapons_big',name:'Obsidian Weapons Loot Box'},{id:'item_moonhorror_key',name:'Odd Core Key'},{id:'item_ogre_hands',name:'Ogre Hands'},{id:'item_mining_laser_orange',name:'Old Mining Laser'},{id:'item_energy_sword_dual',name:'Omega Blade'},{id:'item_orange',name:'Orange'},{id:'item_painting_canvas',name:'Painting Canvas'},{id:'item_paperpack',name:'Paper'},{id:'item_metal_ball_xmas',name:'Peppermint Ball'},{id:'item_moonrock_friend',name:'Pet Moon Rock'},{id:'item_pickaxe',name:'Pickaxe'},{id:'item_pinata_bat',name:'Pinata Bat'},{id:'item_pineapple',name:'Pineapple'},{id:'item_backpack_pink',name:'Pink Backpack'},{id:'item_pipe',name:'Pipe'},{id:'item_mage_pirate_sword',name:'Pirate Lord Sword'},{id:'item_arena_pistol',name:'Pistol'},{id:'item_plank',name:'Plank'},{id:'item_plunger',name:'Plunger'},{id:'item_pogostick',name:'Pogostick'},{id:'item_police_baton',name:'Police Baton'},{id:'item_shield_police',name:'Police Shield'},{id:'item_wood_pallet_easter',name:'Polka Dot Pallet'},{id:'item_plank_easter',name:'Polka Dot Plank'},{id:'item_truss_easter',name:'Polka Dot Truss'},{id:'item_popcorn',name:'Popcorn'},{id:'item_portable_safe_zone',name:'Portable Safe Zone'},{id:'item_portable_teleporter',name:'Portable Teleporter'},{id:'item_prop_scanner',name:'Prop Scanner'},{id:'item_shield_bones',name:'Protective Bone Shield'},{id:'item_fish_pufferfish',name:'Pufferfish'},{id:'item_pumpkin_bomb',name:'Pumpkin Bomb'},{id:'item_pumpkinjack',name:'Pumpkin Jack'},{id:'item_pumpkin_pie',name:'Pumpkin Pie'},{id:'item_quiver',name:'Quiver'},{id:'item_flipflop_realistic',name:'R3@L $@nda1'},{id:'item_backpack_realistic',name:'R3@L 13ackp@ck'},{id:'item_pickaxe_realistic',name:'R3@L P!ck@x='},{id:'item_rpg',name:'RPG'},{id:'item_rpg_ammo',name:'RPG Rocket'},{id:'item_radiation_gun',name:'Radiation Gun'},{id:'item_radioactive_fishing_rod',name:'Radioactive Fishing Rod'},{id:'item_metal_ball_easter',name:'Rainbow Ball'},{id:'item_metal_rod_easter',name:'Rainbow Rod'},{id:'item_fish_rainbow_trout',name:'Rainbow Trout'},{id:'item_rare_card',name:'Rare Trading Card'},{id:'item_egg_easter_red',name:'Red Bunny Egg'},{id:'item_flashlight_red',name:'Red Flashlight'},{id:'item_fungi_red',name:'Red Shroom'},{id:'item_remote_controller',name:'Remote Controller'},{id:'item_revolver',name:'Revolver'},{id:'item_revolver_ammo',name:'Revolver Ammo'},{id:'item_robot_arm_right',name:'Right Robot Arm'},{id:'item_ring_buoy',name:'Ring Buoy'},{id:'item_robo_monke',name:'RoboMonke2000'},{id:'item_robot_head',name:'Robot Head'},{id:'item_rpg_cny',name:'Rocket Dragon RPG'},{id:'item_rope',name:'Rope'},{id:'item_fish_rotten_fish',name:'Rotten Fish'},{id:'item_plate_round',name:'Round Plate'},{id:'item_rubberducky',name:'Rubber Ducky'},{id:'item_ruby',name:'Ruby'},{id:'item_flamethrower_skull_ruby',name:'Ruby Flamethrower Skull'},{id:'item_rpg_smshr',name:'SMSHR RPG'},{id:'item_saddle',name:'Saddle'},{id:'item_fish_salmon',name:'Salmon'},{id:'item_salmoncannon',name:'Salmon Cannon'},{id:'item_fish_salmonster',name:'Salmonster'},{id:'item_bait_sardine',name:'Sardine'},{id:'item_sawblade',name:'Sawblade'},{id:'item_sawblade_launcher',name:'Sawblade Launcher'},{id:'item_shotgun_sawed',name:'Sawed Off'},{id:'item_fish_scaldfish',name:'Scaldfish'},{id:'item_scanner',name:'Scanner'},{id:'item_scissors',name:'Scissors'},{id:'item_fish_seahorse',name:'Seahorse'},{id:'item_fish_seamine',name:'Seamine'},{id:'item_bait_shell',name:'Shell'},{id:'item_fish_shellfish_shield',name:'Shellfish Shield'},{id:'item_shield',name:'Shield'},{id:'item_arena_shotgun',name:'Shotgun (Arena)'},{id:'item_shotgun',name:'Shotgun'},{id:'item_shotgun_ammo',name:'Shotgun Ammo'},{id:'item_shovel',name:'Shovel'},{id:'item_ore_silver_m',name:'Silver Chunk'},{id:'item_skipole',name:'Ski Pole'},{id:'item_skishoe',name:'Ski Shoe (Blue)'},{id:'item_skishoe_2',name:'Ski Shoe (Green)'},{id:'item_skishoe_3',name:'Ski Shoe (Red)'},{id:'item_skishoe_4',name:'Ski Shoe (Yellow)'},{id:'item_quest_gy_skull',name:'Skull'},{id:'item_backpack_small_base',name:'Small Backpack'},{id:'item_ore_copper_s',name:'Small Copper Chunk'},{id:'item_ore_gold_s',name:'Small Gold Chunk'},{id:'item_metal_plate_small',name:'Small Metal Plate'},{id:'item_metal_rod_small',name:'Small Metal Rod'},{id:'item_randombox_mobloot_small',name:'Small Mob Loot Box'},{id:'item_pumpkinjack_small',name:'Small Pumpkin Jack'},{id:'item_ore_silver_s',name:'Small Silver Chunk'},{id:'item_truss_small',name:'Small Truss'},{id:'item_uranium_chunk_s',name:'Small Uranium Chunk'},{id:'item_snail_friend',name:'Snail'},{id:'item_snowboard_4',name:'Snow Snowboard'},{id:'item_snowball',name:'Snowball'},{id:'item_special_fishing_rod',name:'Special Fishing Rod'},{id:'item_special_fishing_rod_with_radar',name:'Special Fishing Rod (Radar)'},{id:'item_snowboard_auto',name:'Special Snowboard'},{id:'item_fish_ghost_sword',name:'Spectral Swordfish'},{id:'item_fish_spicy_salmon',name:'Spicy Salmon'},{id:'item_pennant_spring',name:'Spring Pennants'},{id:'item_umbrella_squirrel',name:'Squirrel Umbrella'},{id:'item_stapler',name:'Stapler'},{id:'item_bait_starfish',name:'Starfish'},{id:'item_stash_grenade',name:'Stash Grenade'},{id:'item_steel_beam',name:'Steel Beam'},{id:'item_sticker_dispenser',name:'Sticker Dispenser'},{id:'item_sticky_dynamite',name:'Sticky Dynamite'},{id:'item_stinky_cheese',name:'Stinky Cheese'},{id:'item_stopwatch',name:'Stopwatch'},{id:'item_tablet',name:'Tablet'},{id:'item_tapedispenser',name:'Tape Dispenser'},{id:'item_tele_grenade',name:'Tele Grenade'},{id:'item_tele_pearl',name:'Tele Pearl'},{id:'item_arrow_teleport',name:'Teleport Arrow'},{id:'item_teleport_dagger',name:'Teleport Dagger'},{id:'item_teleport_gun',name:'Teleport Gun'},{id:'item_shield_viking_3',name:'Thane Shield'},{id:'item_theremin',name:'Theremin'},{id:'item_timebomb',name:'Time Bomb'},{id:'item_toilet_paper',name:'Toilet Paper'},{id:'item_token_circus',name:'Token'},{id:'item_trampoline',name:'Trampoline'},{id:'item_treestick',name:'Tree Stick'},{id:'item_fish_triclops',name:'Triclops'},{id:'item_tripwire_explosive',name:'Tripwire Explosive'},{id:'item_trophy',name:'Trophy'},{id:'item_truss',name:'Truss'},{id:'item_fish_tuna',name:'Tuna'},{id:'item_turkey_leg',name:'Turkey Leg'},{id:'item_turkey_whole',name:'Turkey Whole'},{id:'item_viking_hammer_twilight',name:'Twilight Hammer'},{id:'item_ukulele',name:'Ukulele'},{id:'item_umbrella',name:'Umbrella'},{id:'item_unidentified',name:'Unknown Item'},{id:'item_upsidedown_loot',name:'Upsidedown Loot'},{id:'item_uranium_chunk_m',name:'Uranium Chunk'},{id:'item_quest_vhs',name:'VHS'},{id:'item_quest_vhs_backlots',name:'VHS Backlots'},{id:'item_quest_vhs_basement',name:'VHS Basement'},{id:'item_quest_vhs_cave',name:'VHS Cave'},{id:'item_quest_vhs_circus_ext',name:'VHS Circus'},{id:'item_quest_vhs_dam_facility',name:'VHS Dam Facility'},{id:'item_quest_vhs_dam_servers',name:'VHS Dam Servers'},{id:'item_quest_vhs_dark_forest',name:'VHS Dark Forest'},{id:'item_quest_vhs_circus_day',name:'VHS Daycare'},{id:'item_quest_vhs_eden',name:'VHS Eden'},{id:'item_quest_vhs_forest',name:'VHS Forest'},{id:'item_quest_vhs_foundation',name:'VHS Foundation'},{id:'item_quest_vhs_mountainvault',name:'VHS Frozen Vault'},{id:'item_quest_vhs_graveyard',name:'VHS Graveyard'},{id:'item_quest_vhs_haunted_house',name:'VHS Haunted House'},{id:'item_quest_vhs_hell',name:'VHS Hell'},{id:'item_quest_vhs_lab',name:'VHS Lab'},{id:'item_quest_vhs_lake',name:'VHS Lake'},{id:'item_quest_vhs_lobby',name:'VHS Lobby'},{id:'item_quest_vhs_mountainbot',name:'VHS Lost Valley'},{id:'item_quest_vhs_megalodon',name:'VHS Megalodon'},{id:'item_quest_vhs_megalodon_lake',name:'VHS Megalodon Lake'},{id:'item_quest_vhs_mines',name:'VHS Mines'},{id:'item_quest_vhs_moon',name:'VHS Moon'},{id:'item_quest_vhs_mountain',name:'VHS Mountain'},{id:'item_quest_vhs_obsidianhalls',name:'VHS Obsidian Halls'},{id:'item_quest_vhs_odd_core',name:'VHS Odd Core'},{id:'item_quest_vhs_office',name:'VHS Office'},{id:'item_quest_vhs_office_basement',name:'VHS Office Basement'},{id:'item_quest_vhs_mountainshack',name:'VHS Outpost'},{id:'item_quest_vhs_powerplant_microwave',name:'VHS Power Plant Microwave'},{id:'item_quest_vhs_powerplant_reactorcore',name:'VHS Power Plant Reactor Core'},{id:'item_quest_vhs_powerplant_security',name:'VHS Power Plant Security'},{id:'item_quest_vhs_powerplant_supportfacility',name:'VHS Power Plant Support Facility'},{id:'item_quest_vhs_sandbox',name:'VHS Sandbox'},{id:'item_quest_vhs_circus_fac',name:'VHS School'},{id:'item_quest_vhs_sewers',name:'VHS Sewers'},{id:'item_quest_vhs_moon_horror_rocket',name:'VHS UFO'},{id:'item_quest_vhs_vhs-core',name:'VHS Vhs-core'},{id:'item_shield_viking_4',name:'Varangian Shield'},{id:'item_shield_viking_1',name:'Viking Shield'},{id:'item_shotgun_viper',name:'Viper Shotgun'},{id:'item_bait_wallet',name:'Wallet'},{id:'item_war_fan',name:'War Fan'},{id:'item_wheelhandle',name:'Wheelhandle'},{id:'item_backpack_white',name:'White Backpack'},{id:'item_whoopie',name:'Whoopie'},{id:'item_broom_halloween',name:'Wicked Broom'},{id:'item_wireframe_cube',name:'Wireframe Cube'},{id:'item_wireframe_gun',name:'Wireframe Gun'},{id:'item_wood_log',name:'Wood Log'},{id:'item_wood_pallet',name:'Wood Pallet'},{id:'item_wyrmpiercer',name:'Wyrmpiercer Halberd'},{id:'item_hookshot_sword',name:'Yeetblade'},{id:'item_egg_easter_yellow',name:'Yellow Bunny Egg'},{id:'item_fish_yellowcake',name:'Yellowcake'},{id:'item_zipline_gun',name:'Zipline Gun'},{id:'item_randombox_mobloot_zombie',name:'Zombie Loot Box'},{id:'item_zombie_meat',name:'Zombie Meat'},{id:'item_fish_redacted',name:'[REDACTED]'}
 ];
 
 const SLOTS = [
-  {id:'rightHand', label:'Right Hand', color:'var(--c-rh)', emoji:'🤜'},
-  {id:'leftHand',  label:'Left Hand',  color:'var(--c-lh)', emoji:'🤛'},
-  {id:'rightHip',  label:'Right Hip',  color:'var(--c-rhip)', emoji:'⚔️'},
-  {id:'leftHip',   label:'Left Hip',   color:'var(--c-lhip)', emoji:'🗡️'},
-  {id:'back',      label:'Back',       color:'var(--c-bk)', emoji:'🎒'},
+  {id:'rightHand', label:'Right Hand', color:'var(--c-rh)'},
+  {id:'leftHand',  label:'Left Hand',  color:'var(--c-lh)'},
+  {id:'rightHip',  label:'Right Hip',  color:'var(--c-rhip)'},
+  {id:'leftHip',   label:'Left Hip',   color:'var(--c-lhip)'},
+  {id:'back',      label:'Back',       color:'var(--c-bk)'},
 ];
 
-// ═══════════════════════════════════════════
-// STATE — each slot holds an array of item objects (trees)
-// ═══════════════════════════════════════════
 const state = {
   rightHand: [], leftHand: [], rightHip: [], leftHip: [], back: [],
 };
-let selectedParent = null; // {slotId, path} — path = array of indices to reach the parent node
+let selectedParent = null;
 let qaSelectedItem = null;
-let dragSource = null; // {slotId, path}
-let editTarget = null; // {slotId, path}
+let editTarget = null;
+const randFlags = { cR:false, saR:false, sR:false, vR:false, aR:false };
 
-// ═══════════════════════════════════════════
-// COLOR UTILS
-// ═══════════════════════════════════════════
-function hsr(hue, sat) {
-  // hue 0-240, sat 0-248 (raw slider values)
-  const h2=(hue/240)*325, s2=((sat/248)*164)+84;
-  const s=s2/120, c=s*255, x=c*(1-Math.abs((h2/60)%2-1)), m=255-c;
-  let r,g,b;
-  if(h2<60){r=c;g=x;b=0}else if(h2<120){r=x;g=c;b=0}else if(h2<180){r=0;g=c;b=x}
-  else if(h2<240){r=0;g=x;b=c}else if(h2<300){r=x;g=0;b=c}else{r=c;g=0;b=x}
-  const inv=sat/248;
-  r=Math.round((r+m)*inv+(255-(r+m))*(1-inv));
-  g=Math.round((g+m)*inv+(255-(g+m))*(1-inv));
-  b=Math.round((b+m)*inv+(255-(b+m))*(1-inv));
+function hsr(hue, satRaw) {
+  const sat = typeof satRaw === 'number' && satRaw <= 124 && satRaw >= -124 ? satRaw + 124 : satRaw;
+  const h2 = (hue / 240) * 325;
+  const s2 = ((sat / 248) * 164) + 84;
+  const s = s2 / 120, c = s * 255, x = c * (1 - Math.abs((h2 / 60) % 2 - 1)), m = 255 - c;
+  let r, g, b;
+  if (h2 < 60) { r = c; g = x; b = 0; }
+  else if (h2 < 120) { r = x; g = c; b = 0; }
+  else if (h2 < 180) { r = 0; g = c; b = x; }
+  else if (h2 < 240) { r = 0; g = x; b = c; }
+  else if (h2 < 300) { r = x; g = 0; b = c; }
+  else { r = c; g = 0; b = x; }
+  const inv = sat / 248;
+  r = Math.round((r + m) * inv + (255 - (r + m)) * (1 - inv));
+  g = Math.round((g + m) * inv + (255 - (g + m)) * (1 - inv));
+  b = Math.round((b + m) * inv + (255 - (b + m)) * (1 - inv));
   return `rgb(${r},${g},${b})`;
 }
-function getColor(){
-  const h=+document.getElementById('colorSl').value;
-  const s=+document.getElementById('satSl').value;
-  return hsr(h,s);
+function getColor() {
+  return hsr(+document.getElementById('colorSl').value, +document.getElementById('satSl').value);
 }
-function getItemColor(item){
-  if(item.colorHue!=null&&item.colorSaturation!=null)
-    return hsr(item.colorHue,(item.colorSaturation+124));
-  if(item.colorHue!=null) return hsr(item.colorHue,180);
-  return 'rgba(255,255,255,0.25)';
+function getItemColor(item) {
+  if (item.colorHue != null && item.colorSaturation != null)
+    return hsr(item.colorHue, item.colorSaturation + 124);
+  if (item.colorHue != null) return hsr(item.colorHue, 180);
+  return 'rgba(255,255,255,0.2)';
 }
-function currentProps(){
-  const rngH=document.getElementById('cR').checked;
-  const rngS=document.getElementById('saR').checked;
-  const rngSz=document.getElementById('sR').checked;
-  const rngV=document.getElementById('vR').checked;
-  const rngA=document.getElementById('aR').checked;
+function currentProps() {
   return {
-    colorHue: rngH ? Math.round(Math.random()*240) : +document.getElementById('colorSl').value||undefined,
-    colorSaturation: rngS ? Math.round(Math.random()*248)-124 : (+document.getElementById('satSl').value-124)||undefined,
-    scaleModifier: rngSz ? Math.round(Math.random()*255)-128 : (+document.getElementById('sizeSl').value-128)||undefined,
-    state: rngV ? Math.round(Math.random()*8000) : +document.getElementById('stateSl').value||undefined,
-    ammo: rngA ? Math.round(Math.random()*2) : +document.getElementById('ammoSl').value||undefined,
+    colorHue: randFlags.cR ? Math.round(Math.random() * 240) : +document.getElementById('colorSl').value,
+    colorSaturation: randFlags.saR ? Math.round(Math.random() * 248) - 124 : +document.getElementById('satVal').value,
+    scaleModifier: randFlags.sR ? Math.round(Math.random() * 255) - 128 : +document.getElementById('sizeVal').value,
+    state: randFlags.vR ? Math.round(Math.random() * 8000) : +document.getElementById('stateSl').value,
+    ammo: randFlags.aR ? Math.round(Math.random() * 2) : +document.getElementById('ammoSl').value,
   };
 }
 
-// ═══════════════════════════════════════════
-// ITEM NAME LOOKUP
-// ═══════════════════════════════════════════
 const itemMap = {};
-ALL_ITEMS.forEach(i=>itemMap[i.id]=i.name);
-function nameOf(id){return itemMap[id]||id}
+ALL_ITEMS.forEach(i => itemMap[i.id] = i.name);
+function nameOf(id) { return itemMap[id] || id; }
 
-// ═══════════════════════════════════════════
-// BACKPACK DETECTION — any container that can hold children
-// ═══════════════════════════════════════════
 const BACKPACK_KEYWORDS = ['backpack','cardb','shredder','pelican','quiver','hover','satchel','bag','pouch','crate','chest','box','container','case'];
-function isBackpack(itemId){
-  if(!itemId) return false;
-  const low = itemId.toLowerCase();
-  return BACKPACK_KEYWORDS.some(kw => low.includes(kw));
+function isBackpack(itemId) {
+  if (!itemId) return false;
+  return BACKPACK_KEYWORDS.some(kw => itemId.toLowerCase().includes(kw));
 }
 
-// ═══════════════════════════════════════════
-// PATH UTILS — navigate nested children arrays
-// ═══════════════════════════════════════════
-function getNode(slotId, path){
-  let arr=state[slotId];
-  for(let i=0;i<path.length-1;i++) arr=arr[path[i]].children;
-  return arr[path[path.length-1]];
+function getNode(slotId, path) {
+  let arr = state[slotId];
+  for (let i = 0; i < path.length - 1; i++) arr = arr[path[i]].children;
+  return arr[path[path.length - 1]];
 }
-function getParentArr(slotId, path){
-  if(path.length===0) return state[slotId];
-  let arr=state[slotId];
-  for(let i=0;i<path.length-1;i++) arr=arr[path[i]].children||[];
+function getParentArr(slotId, path) {
+  if (path.length === 0) return state[slotId];
+  let arr = state[slotId];
+  for (let i = 0; i < path.length - 1; i++) arr = arr[path[i]].children || [];
   return arr;
 }
-function removeNode(slotId, path){
-  const parr=getParentArr(slotId, path);
-  parr.splice(path[path.length-1],1);
-}
-function insertNode(slotId, path, node){
-  const parr=getParentArr(slotId, path);
-  parr.splice(path[path.length-1],0,node);
+function removeNode(slotId, path) {
+  getParentArr(slotId, path).splice(path[path.length - 1], 1);
 }
 
-// ═══════════════════════════════════════════
-// BUILD ITEM GRID (sidebar)
-// ═══════════════════════════════════════════
-function buildItemGrid(query=''){
+function buildItemGrid(query = '') {
   const grid=document.getElementById('itemGrid');
   grid.innerHTML='';
   const q=query.toLowerCase();
@@ -596,31 +506,23 @@ function buildItemGrid(query=''){
   });
 }
 
-function buildQaList(query=''){
-  const list=document.getElementById('qaList');
-  list.innerHTML='';
-  const q=query.toLowerCase();
-  ALL_ITEMS.filter(i=>i.name.toLowerCase().includes(q)).forEach(item=>{
-    const row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .15s;font-size:.78rem';
-    row.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:var(--c-dim);flex-shrink:0;transition:background .2s" class="dot"></span>${item.name}`;
-    row.addEventListener('click',()=>{
-      document.querySelectorAll('#qaList .qa-sel').forEach(e=>e.classList.remove('qa-sel'));
-      row.classList.add('qa-sel');
-      row.style.background='rgba(0,255,179,.1)';
-      row.querySelector('.dot').style.background='var(--c-accent)';
-      qaSelectedItem=item.id;
+function buildQaList(query = '') {
+  const list = document.getElementById('qaList');
+  list.innerHTML = '';
+  const q = query.toLowerCase();
+  ALL_ITEMS.filter(i => i.name.toLowerCase().includes(q)).forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'qa-item' + (qaSelectedItem === item.id ? ' sel' : '');
+    row.textContent = item.name;
+    row.addEventListener('click', () => {
+      qaSelectedItem = item.id;
+      buildQaList(document.getElementById('qaSearch').value);
     });
-    row.addEventListener('mouseover',()=>{if(!row.classList.contains('qa-sel'))row.style.background='rgba(255,255,255,.05)'});
-    row.addEventListener('mouseout',()=>{if(!row.classList.contains('qa-sel'))row.style.background=''});
     list.appendChild(row);
   });
 }
 
-// ═══════════════════════════════════════════
-// RENDER SLOTS
-// ═══════════════════════════════════════════
-function render(){
+function render() {
   const container=document.getElementById('slotsContainer');
   container.innerHTML='';
   SLOTS.forEach(slot=>{
@@ -632,14 +534,13 @@ function render(){
     card.innerHTML=`
       <div class="slot-header" onclick="toggleSlot(this)">
         <span class="slot-dot"></span>
-        <span class="slot-label">${slot.emoji} ${slot.label}</span>
+        <span class="slot-label">${slot.label}</span>
         <span class="slot-count">${itemCount} item${itemCount!==1?'s':''}</span>
         <span class="slot-chevron">▼</span>
       </div>
       <div class="slot-body" id="body-${slot.id}">
         ${state[slot.id].length===0?'<div class="slot-empty">Drop items here or use Quick Add</div>':''}
       </div>`;
-    // Drag-over for slot root
     const body=card.querySelector('.slot-body');
     body.addEventListener('dragover',e=>{
       e.preventDefault();
@@ -654,7 +555,6 @@ function render(){
         if(state[slot.id].length===0){
           addToSlot(slot.id,newId,[]);
         } else {
-          // If root item is a backpack, auto-child
           const rootItem=state[slot.id][0];
           if(isBackpack(rootItem.itemID)){
             addChild(slot.id,[0],newId);
@@ -698,10 +598,7 @@ function toggleSlot(header){
   body.classList.toggle('collapsed');
 }
 
-// ═══════════════════════════════════════════
-// BUILD ITEM NODE (recursive)
-// ═══════════════════════════════════════════
-function buildNode(item, slotId, path, slotColor){
+function buildNode(item, slotId, path, slotColor) {
   const wrap=document.createElement('div');
   wrap.className='item-node';
   wrap.dataset.path=JSON.stringify(path);
@@ -711,7 +608,6 @@ function buildNode(item, slotId, path, slotColor){
   const name=nameOf(item.itemID);
   const depth=path.length;
 
-  // Props string
   let props=[];
   if(item.colorHue!=null) props.push(`hue:<span>${item.colorHue}</span>`);
   if(item.colorSaturation!=null) props.push(`sat:<span>${item.colorSaturation}</span>`);
@@ -724,22 +620,20 @@ function buildNode(item, slotId, path, slotColor){
     <div class="item-node-head" draggable="true" title="Drag to move">
       <span class="node-color" style="background:${col}"></span>
       <span class="node-name">${name}</span>
-      ${isBackpackNode?`<span class="node-bag-badge" title="Backpack — items dropped here become children">🎒</span>`:''}
+      ${isBackpackNode ? '<span class="node-bag-badge">bag</span>' : ''}
       <span class="node-id">${item.itemID}</span>
       <div class="node-actions">
-        <button class="node-btn edit-btn" title="Edit item properties">✏️</button>
-        <button class="node-btn dup-btn" title="Duplicate">📋</button>
-        <button class="node-btn del del-btn" title="Delete">✕</button>
+        <button class="node-btn edit-btn" title="Edit">Edit</button>
+        <button class="node-btn dup-btn" title="Duplicate">Dup</button>
+        <button class="node-btn del del-btn" title="Delete">Del</button>
       </div>
     </div>
     ${props.length?`<div class="node-prop">${props.join(' ')}</div>`:''}`;
 
-  // Wire up action buttons via JS (avoids HTML attribute quote-escaping bugs)
   wrap.querySelector('.edit-btn').addEventListener('click', e=>{ e.stopPropagation(); openEdit(slotId, path); });
   wrap.querySelector('.dup-btn').addEventListener('click', e=>{ e.stopPropagation(); dupNode(slotId, path); });
   wrap.querySelector('.del-btn').addEventListener('click', e=>{ e.stopPropagation(); delNode(slotId, path); });
 
-  // Children container
   if(item.children&&item.children.length>0){
     const childWrap=document.createElement('div');
     childWrap.className='node-children drop-zone';
@@ -750,17 +644,14 @@ function buildNode(item, slotId, path, slotColor){
     });
     const lastLine=document.createElement('div');
     lastLine.className='drop-line'; childWrap.appendChild(lastLine);
-    // Drop zone events
     setupChildDropZone(childWrap, slotId, path);
     wrap.appendChild(childWrap);
   }
 
-  // Add-child bar
   const addBar=document.createElement('div');
   addBar.className='add-child-bar';
-  addBar.innerHTML=`<span style="font-size:.68rem;color:var(--c-dim);font-family:var(--mono)">${isBackpackNode?'🎒 drop here → child':'drop inside ↓'}</span>`;
-  // Make the add bar a drop target for adding children
-  addBar.addEventListener('dragover',e=>{e.preventDefault();addBar.style.background='rgba(0,255,179,.1)'});
+  addBar.textContent = isBackpackNode ? 'Drop items here to nest' : 'Drop items here to add inside';
+  addBar.addEventListener('dragover',e=>{e.preventDefault();addBar.style.background='rgba(139,92,246,0.08)'});
   addBar.addEventListener('dragleave',()=>addBar.style.background='');
   addBar.addEventListener('drop',e=>{
     e.stopPropagation(); e.preventDefault(); addBar.style.background='';
@@ -776,7 +667,6 @@ function buildNode(item, slotId, path, slotColor){
   });
   wrap.appendChild(addBar);
 
-  // Drag events on head
   const head=wrap.querySelector('.item-node-head');
   head.addEventListener('dragstart',e=>{
     e.stopPropagation();
@@ -786,7 +676,6 @@ function buildNode(item, slotId, path, slotColor){
   });
   head.addEventListener('dragend',()=>wrap.classList.remove('dragging'));
 
-  // Drop on node = insert as child if backpack, otherwise sibling
   wrap.addEventListener('dragover',e=>{
     e.preventDefault();e.stopPropagation();
     wrap.classList.add('drag-over');
@@ -798,7 +687,6 @@ function buildNode(item, slotId, path, slotColor){
     const newId=e.dataTransfer.getData('application/xmod-new');
     const moveSrc=e.dataTransfer.getData('application/xmod-move');
     if(isBackpack(item.itemID)){
-      // Auto-child into backpack
       if(newId) addChild(slotId, path, newId);
       else if(moveSrc){
         const src=JSON.parse(moveSrc);
@@ -808,7 +696,6 @@ function buildNode(item, slotId, path, slotColor){
         addChild(slotId, path, null, node);
       }
     } else {
-      // Insert as sibling after this node
       if(newId){
         const parentPath=path.slice(0,-1);
         const idx=path[path.length-1]+1;
@@ -826,8 +713,8 @@ function buildNode(item, slotId, path, slotColor){
     }
   });
 
-  // Click to select as parent
   wrap.addEventListener('click',e=>{
+    if(e.target.closest('.node-actions')) return;
     e.stopPropagation();
     document.querySelectorAll('.item-node.sel-parent').forEach(n=>n.classList.remove('sel-parent'));
     if(selectedParent&&JSON.stringify(selectedParent)==JSON.stringify({slotId,path})){
@@ -860,17 +747,17 @@ function setupChildDropZone(cw, slotId, parentPath){
   });
 }
 
-// ═══════════════════════════════════════════
-// STATE MUTATIONS
-// ═══════════════════════════════════════════
-function makeItem(id){
-  const p=currentProps();
-  const item={itemID:id};
-  if(p.colorHue!==0&&p.colorHue!=null) item.colorHue=p.colorHue;
-  if(p.colorSaturation!==0&&p.colorSaturation!=null) item.colorSaturation=p.colorSaturation;
-  if(p.scaleModifier!==0&&p.scaleModifier!=null) item.scaleModifier=p.scaleModifier;
-  if(id==='item_shredder'&&p.state) item.state=p.state;
-  if(id==='item_shotgun'&&p.ammo) item.ammo=p.ammo;
+function makeItem(id) {
+  const p = currentProps();
+  const item = { itemID: id };
+  const applyColor = document.getElementById('applyColor').checked;
+  if (applyColor) {
+    if (p.colorHue != null) item.colorHue = p.colorHue;
+    if (p.colorSaturation != null && p.colorSaturation !== 0) item.colorSaturation = p.colorSaturation;
+    if (p.scaleModifier != null && p.scaleModifier !== 0) item.scaleModifier = p.scaleModifier;
+  }
+  if (id === 'item_shredder' && p.state) item.state = p.state;
+  if (id === 'item_shotgun' && p.ammo != null && p.ammo > 0) item.ammo = p.ammo;
   return item;
 }
 
@@ -913,10 +800,7 @@ function dupNode(slotId, path){
   render(); updateKb(); toast('Duplicated!');
 }
 
-// ═══════════════════════════════════════════
-// QUICK ADD
-// ═══════════════════════════════════════════
-let qaSlot='rightHand';
+let qaSlot = 'rightHand';
 document.querySelectorAll('#slotPicker .slot-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('#slotPicker .slot-btn').forEach(b=>b.classList.remove('sel'));
@@ -931,50 +815,48 @@ function clearParent(){
   updateParentLabel();
 }
 
-function updateParentLabel(){
-  const lbl=document.getElementById('qaParentLabel');
-  if(selectedParent){
-    const node=getNode(selectedParent.slotId,selectedParent.path);
-    lbl.textContent=`Inside: ${nameOf(node.itemID)} (${selectedParent.slotId})`;
-    lbl.style.display='block';
+function updateParentLabel() {
+  const lbl = document.getElementById('qaParentLabel');
+  if (selectedParent) {
+    const node = getNode(selectedParent.slotId, selectedParent.path);
+    lbl.textContent = `Parent: ${nameOf(node.itemID)}`;
+    lbl.style.display = 'block';
   } else {
-    lbl.style.display='none';
+    lbl.style.display = 'none';
   }
 }
 
-function quickAdd(){
-  const rng=document.getElementById('qaRng').checked;
-  const amt=Math.min(parseInt(document.getElementById('qaAmount').value)||1,500);
-  const slot=qaSlot;
-  let parentPath=[];
-  if(selectedParent&&selectedParent.slotId===slot) parentPath=selectedParent.path;
-  else if(selectedParent&&selectedParent.slotId!==slot){
-    // different slot — use root
-  }
-  for(let i=0;i<amt;i++){
-    const id=rng ? ALL_ITEMS[Math.floor(Math.random()*ALL_ITEMS.length)].id : qaSelectedItem;
-    if(!id){toast('Select an item first!');return;}
-    if(parentPath.length===0){
-      if(state[slot].length===0) state[slot].push(makeItem(id));
-      else{
-        // try to find a child target
-        toast('Slot already has a root item. Select it or a child as parent.');
+function quickAdd() {
+  const rng = document.getElementById('qaRng').checked;
+  const amt = Math.min(parseInt(document.getElementById('qaAmount').value) || 1, 500);
+  const slot = qaSlot;
+  let parentPath = selectedParent && selectedParent.slotId === slot ? selectedParent.path : [];
+  let added = 0;
+  for (let i = 0; i < amt; i++) {
+    const id = rng ? ALL_ITEMS[Math.floor(Math.random() * ALL_ITEMS.length)].id : qaSelectedItem;
+    if (!id) { toast('Select an item first'); return; }
+    if (parentPath.length === 0) {
+      if (state[slot].length === 0) {
+        state[slot].push(makeItem(id));
+        added++;
+      } else if (isBackpack(state[slot][0].itemID)) {
+        addChild(slot, [0], id);
+        added++;
+      } else {
+        toast('Slot has a root item — click it to set as parent');
         break;
       }
     } else {
-      const parent=getNode(slot,parentPath);
-      if(!parent.children) parent.children=[];
+      const parent = getNode(slot, parentPath);
+      if (!parent.children) parent.children = [];
       parent.children.push(makeItem(id));
+      added++;
     }
   }
-  render(); updateKb();
-  toast(`Added ${amt} item${amt!==1?'s':''}!`);
+  if (added) { render(); updateKb(); toast(`Added ${added} item${added !== 1 ? 's' : ''}`); }
 }
 
-// ═══════════════════════════════════════════
-// ITEM EDITOR
-// ═══════════════════════════════════════════
-function openEdit(slotId, path){
+function openEdit(slotId, path) {
   editTarget={slotId,path};
   const item=getNode(slotId,path);
   const body=document.getElementById('editModalBody');
@@ -1045,42 +927,46 @@ function closeEditModal(){
 }
 document.getElementById('editOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeEditModal()});
 
-// ═══════════════════════════════════════════
-// SLIDERS
-// ═══════════════════════════════════════════
-function promptSlider(id,label,min,max,offset){
-  const v=prompt(`${label} (${min}–${max})`);
-  const n=parseInt(v);
-  if(isNaN(n)||n<min||n>max) return;
-  document.getElementById(id).value=n+offset;
-  document.getElementById(id).dispatchEvent(new Event('input'));
+function bindSlider(sliderId, valId, toDisplay, fromDisplay, onChange) {
+  const sl = document.getElementById(sliderId);
+  const vl = document.getElementById(valId);
+  sl.addEventListener('input', () => {
+    vl.value = toDisplay(+sl.value);
+    if (onChange) onChange();
+  });
+  vl.addEventListener('change', () => {
+    const n = +vl.value;
+    if (isNaN(n)) return;
+    sl.value = fromDisplay(n);
+    if (onChange) onChange();
+  });
 }
-document.getElementById('colorSl').addEventListener('input',function(){
-  document.getElementById('colorVal').textContent=this.value;
-  updateColorPreview();
-});
-document.getElementById('satSl').addEventListener('input',function(){
-  document.getElementById('satVal').textContent=this.value-124;
-  updateColorPreview();
-});
-document.getElementById('sizeSl').addEventListener('input',function(){
-  document.getElementById('sizeVal').textContent=this.value-128;
-});
-document.getElementById('stateSl').addEventListener('input',function(){
-  document.getElementById('stateVal').textContent=this.value;
-});
-document.getElementById('ammoSl').addEventListener('input',function(){
-  document.getElementById('ammoVal').textContent=this.value;
-});
-function updateColorPreview(){
-  const c=getColor();
-  document.getElementById('colorPrev').style.background=c;
+
+function updateColorPreview() {
+  const h = +document.getElementById('colorSl').value;
+  const satSl = document.getElementById('satSl');
+  const c = getColor();
+  const prev = document.getElementById('colorPrev');
+  prev.style.background = c;
+  prev.dataset.label = `Hue ${h} · Sat ${+document.getElementById('satVal').value}`;
+  satSl.style.setProperty('--sat-end', hsr(h, 248));
 }
+
+document.querySelectorAll('.rand-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    const key = pill.dataset.rand;
+    randFlags[key] = !randFlags[key];
+    pill.classList.toggle('on', randFlags[key]);
+  });
+});
+
+bindSlider('colorSl', 'colorVal', v => v, v => Math.max(0, Math.min(240, v)), updateColorPreview);
+bindSlider('satSl', 'satVal', v => v - 124, v => Math.max(0, Math.min(248, v + 124)), updateColorPreview);
+bindSlider('sizeSl', 'sizeVal', v => v - 128, v => Math.max(0, Math.min(255, v + 128)), () => {});
+bindSlider('stateSl', 'stateVal', v => v, v => Math.max(0, Math.min(8000, v)), () => {});
+bindSlider('ammoSl', 'ammoVal', v => v, v => Math.max(0, Math.min(2, v)), () => {});
 updateColorPreview();
 
-// ═══════════════════════════════════════════
-// TABS
-// ═══════════════════════════════════════════
 document.querySelectorAll('.stab').forEach(tab=>{
   tab.addEventListener('click',()=>{
     document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
@@ -1099,31 +985,26 @@ document.querySelectorAll('.mtab').forEach(tab=>{
   });
 });
 
-// ═══════════════════════════════════════════
-// BULK TABS (slot picker in bulk panel)
-// ═══════════════════════════════════════════
-let bulkSlot='rightHand';
-document.querySelectorAll('.bulk-panel .slot-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.bulk-panel .slot-btn').forEach(b=>b.classList.remove('sel'));
+let bulkSlot = 'rightHand';
+document.querySelectorAll('#bulkSlotPicker .slot-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#bulkSlotPicker .slot-btn').forEach(b => b.classList.remove('sel'));
     btn.classList.add('sel');
-    bulkSlot=btn.dataset.slot;
+    bulkSlot = btn.dataset.slot;
   });
 });
 
-// Populate bulk item select
-(function(){
-  const sel=document.getElementById('bulkItem');
-  ALL_ITEMS.forEach(i=>{
-    const o=document.createElement('option');
-    o.value=i.id; o.textContent=i.name; sel.appendChild(o);
+(function() {
+  const sel = document.getElementById('bulkItem');
+  ALL_ITEMS.forEach(i => {
+    const o = document.createElement('option');
+    o.value = i.id;
+    o.textContent = i.name;
+    sel.appendChild(o);
   });
 })();
 
-// ═══════════════════════════════════════════
-// JSON
-// ═══════════════════════════════════════════
-function compileItem(item){
+function compileItem(item) {
   const obj={itemID:item.itemID};
   if(item.colorHue!=null) obj.colorHue=item.colorHue;
   if(item.colorSaturation!=null) obj.colorSaturation=item.colorSaturation;
@@ -1148,46 +1029,73 @@ function minJson(){
   s=s.replace(/^\s+/gm,'').replace(/: /g,':').replace(/, /g,',').replace(/\s+$/gm,'')+'\n';
   return s;
 }
-function updateKb(){
-  const s=minJson();
-  const kb=(new Blob([s]).size/1024).toFixed(2);
-  document.getElementById('kbLabel').textContent=`${kb} kb`;
+function updateKb() {
+  const s = minJson();
+  const kb = (new Blob([s]).size / 1024).toFixed(2);
+  document.getElementById('kbLabel').textContent = `${kb} kb`;
+  if (document.getElementById('mtab-json').classList.contains('active')) refreshJsonPreview();
 }
 function refreshJsonPreview(){
   document.getElementById('jsonOut').textContent=JSON.stringify(buildJsonObj(),null,2);
 }
-function dlJson(){
-  const name=prompt('File name?')||'xmod';
-  const blob=new Blob([minJson()],{type:'application/json'});
-  const a=document.createElement('a'); a.download=name+' V10.json'; a.href=URL.createObjectURL(blob);
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+function dlJson() {
+  const blob = new Blob([minJson()], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.download = 'xmod.json';
+  a.href = URL.createObjectURL(blob);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
 }
-function copyJson(){
-  navigator.clipboard.writeText(JSON.stringify(buildJsonObj(),null,2)).then(()=>toast('Copied!'));
+function copyJson() {
+  navigator.clipboard.writeText(JSON.stringify(buildJsonObj(), null, 2)).then(() => toast('Copied'));
 }
-function clearAll(){
-  if(!confirm('Clear all slots?')) return;
-  SLOTS.forEach(s=>{state[s.id]=[];});
-  selectedParent=null;
-  render(); updateKb(); toast('Cleared!');
+function clearAll() {
+  if (!confirm('Clear all slots?')) return;
+  SLOTS.forEach(s => { state[s.id] = []; });
+  selectedParent = null;
+  render();
+  updateKb();
+  refreshJsonPreview();
+  toast('Cleared');
 }
 
-// ═══════════════════════════════════════════
-// BYPASS BAG
-// ═══════════════════════════════════════════
-function createBypassBag(){
+function importJson(obj) {
+  if (!obj || typeof obj !== 'object') throw new Error('invalid');
+  SLOTS.forEach(s => {
+    const d = obj[s.id];
+    state[s.id] = d && d.itemID ? [JSON.parse(JSON.stringify(d))] : [];
+  });
+  selectedParent = null;
+  render();
+  updateKb();
+  refreshJsonPreview();
+}
+
+document.getElementById('importFile').addEventListener('change', async function() {
+  const file = this.files[0];
+  if (!file) return;
+  try {
+    importJson(JSON.parse(await file.text()));
+    toast('Imported');
+  } catch {
+    toast('Invalid JSON file');
+  }
+  this.value = '';
+});
+
+function createBypassBag() {
   const slot=bulkSlot;
   let amt=Math.min(parseInt(document.getElementById('bulkAmt').value)||1,3500);
   const itemId=document.getElementById('bulkItem').value;
   const explode=document.getElementById('explodeMode').checked;
   state[slot]=[];
 
-  const needsWrap=itemId.includes('backpack')||itemId.includes('cardb')||itemId==='item_shredder'||
-    itemId==='item_pelican_case'||itemId.includes('quiver')||itemId.includes('hover')||explode;
-  const needsCross=itemId.includes('landmine');
-
-  // Build nested bag structure
-  const bagCapacity=23;
+  const needsWrap = itemId.includes('backpack') || itemId.includes('cardb') || itemId === 'item_shredder' ||
+    itemId === 'item_pelican_case' || itemId.includes('quiver') || itemId.includes('hover') || explode;
+  const needsCross = itemId.includes('landmine');
+  const bagCapacity = 23;
   function makeItemNode(id){ return makeItem(id); }
   function packItems(count){
     if(count===0) return [];
@@ -1220,24 +1128,11 @@ function createBypassBag(){
     return outerBag;
   }
   state[slot]=[buildBagLayer(amt)];
-  render(); updateKb(); toast(`Packed ${amt} ${nameOf(itemId)} into ${slot}!`);
+  render(); updateKb(); toast(`Packed ${amt} ${nameOf(itemId)} into ${slot}`);
 }
 
-// ═══════════════════════════════════════════
-// RIPPLE
-// ═══════════════════════════════════════════
-document.addEventListener('click',e=>{
-  const btn=e.target.closest('.btn');
-  if(!btn) return;
-  btn.classList.remove('rip'); void btn.offsetWidth; btn.classList.add('rip');
-  btn.addEventListener('animationend',()=>btn.classList.remove('rip'),{once:true});
-});
-
-// ═══════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════
 let toastTimer;
-function toast(msg){
+function toast(msg) {
   let t=document.querySelector('.toast');
   if(t) t.remove();
   t=document.createElement('div');
@@ -1247,39 +1142,14 @@ function toast(msg){
   toastTimer=setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300)},2200);
 }
 
-// ═══════════════════════════════════════════
-// SEARCH
-// ═══════════════════════════════════════════
-document.getElementById('itemSearch').addEventListener('input',function(){buildItemGrid(this.value)});
-document.getElementById('qaSearch').addEventListener('input',function(){buildQaList(this.value)});
+document.getElementById('itemSearch').addEventListener('input', function() { buildItemGrid(this.value); });
+document.getElementById('qaSearch').addEventListener('input', function() { buildQaList(this.value); });
 
-// ═══════════════════════════════════════════
-// UPLOAD
-// ═══════════════════════════════════════════
-async function uploadJson(){
-  const fi=document.getElementById('jsonFile');
-  const fn=document.getElementById('fileName').value.trim();
-  const au=document.getElementById('authorName').value.trim();
-  if(!fi.files[0]||!fn||!au){toast('Fill all fields');return;}
-  try{JSON.parse(await fi.files[0].text());}catch{toast('Invalid JSON');return;}
-  const fd=new FormData(); fd.append('file',fi.files[0]); fd.append('fileName',fn); fd.append('authorName',au);
-  try{
-    const r=await fetch('/api/upload',{method:'POST',body:fd});
-    toast(r.ok?'Uploaded!':'Upload error');
-  }catch{toast('Server not running locally');}
-}
-
-// ═══════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════
 buildItemGrid();
+if (ALL_ITEMS.length) qaSelectedItem = ALL_ITEMS[0].id;
 buildQaList();
 render();
-
-// Sel-parent style
-const style=document.createElement('style');
-style.textContent=`.item-node.sel-parent{outline:2px solid var(--c-accent);outline-offset:2px}`;
-document.head.appendChild(style);
+refreshJsonPreview();
 </script>
 </body>
 </html>
