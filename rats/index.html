@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>N5 MENU — 100% RAT EVIL</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root{
+    --void:#0a0808;
+    --blood:#c81e1e;
+    --blood-bright:#ff2b2b;
+    --bone:#e8e3d8;
+    --rot-green:#3ddc6a;
+    --rat-brown:#5a4434;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    background:var(--void);
+    color:var(--bone);
+    font-family:'Courier New',monospace;
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+  body.shake{ animation: shakeit 0.25s; }
+  @keyframes shakeit{
+    0%{transform:translate(0,0) rotate(0deg);}
+    25%{transform:translate(-4px,3px) rotate(-0.3deg);}
+    50%{transform:translate(3px,-3px) rotate(0.3deg);}
+    75%{transform:translate(-2px,2px) rotate(-0.2deg);}
+    100%{transform:translate(0,0) rotate(0deg);}
+  }
+
+  .banner{
+    position:sticky; top:0; z-index:500;
+    background:repeating-linear-gradient(45deg, var(--blood) 0 18px, #000 18px 36px);
+    color:var(--bone);
+    text-align:center;
+    font-weight:bold;
+    font-size:13px;
+    letter-spacing:1px;
+    padding:7px 10px;
+    text-shadow: 1px 1px 0 #000;
+    border-bottom:2px solid #000;
+  }
+
+  header.hero{
+    text-align:center;
+    padding:50px 20px 20px;
+    position:relative;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(200,30,30,0.25), transparent 60%),
+      var(--void);
+    border-bottom:3px solid var(--blood);
+  }
+  .title-main{
+    font-family:'Impact','Arial Black',sans-serif;
+    font-size:clamp(40px,9vw,100px);
+    color:var(--bone);
+    letter-spacing:2px;
+    margin:0;
+    -webkit-text-stroke:2px #000;
+    transform:skewX(-3deg);
+    text-shadow: 4px 4px 0 #000, 0 0 30px rgba(255,0,0,0.4);
+  }
+  .title-sub{
+    font-family:'Impact','Arial Black',sans-serif;
+    font-size:clamp(24px,6vw,60px);
+    color:var(--blood-bright);
+    margin:0;
+    letter-spacing:1px;
+    -webkit-text-stroke:1.5px #000;
+    text-shadow: 3px 3px 0 #000;
+  }
+  .tagline{
+    font-family:'Impact','Arial Black',sans-serif;
+    color:var(--bone);
+    letter-spacing:4px;
+    font-size:clamp(13px,2.5vw,20px);
+    margin-top:8px;
+    opacity:0.9;
+  }
+  .rat-counter{
+    margin-top:18px;
+    display:inline-block;
+    border:2px solid var(--rot-green);
+    background:rgba(0,0,0,0.6);
+    padding:6px 18px;
+    color:var(--rot-green);
+    font-size:14px;
+    letter-spacing:1px;
+  }
+  .rat-counter b{ font-size:20px; }
+
+  main{
+    max-width:1300px;
+    margin:0 auto;
+    padding:30px 18px 80px;
+    display:grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap:24px;
+  }
+  @media (max-width:900px){ main{ grid-template-columns:1fr; } }
+
+  .panel{
+    background:rgba(15,10,10,0.85);
+    border:1px solid #3a1414;
+    border-top:3px solid var(--blood);
+    padding:0;
+    position:relative;
+  }
+  .panel-head{
+    background:linear-gradient(180deg,#1b1010,#0d0808);
+    border-bottom:1px solid #3a1414;
+    padding:10px 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-weight:bold;
+    color:var(--blood-bright);
+    letter-spacing:1px;
+    font-size:15px;
+  }
+  .panel-head .status{ color:var(--rot-green); font-size:11px; }
+  .panel-body{ padding:14px 16px; }
+
+  /* rat canvas viewer */
+  .rat-viewer{
+    height:420px;
+    position:relative;
+    background:
+      radial-gradient(circle at 50% 40%, #3a0606, #000 80%);
+  }
+  #ratCanvas{ width:100%; height:100%; display:block; cursor:grab; }
+  .rat-viewer .hint{
+    position:absolute; bottom:8px; left:0; right:0;
+    text-align:center; font-size:11px; color:#888;
+    letter-spacing:1px;
+  }
+  .rat-stage{
+    position:absolute; top:10px; left:10px;
+    background:rgba(0,0,0,0.55); border:1px solid var(--blood);
+    color:var(--blood-bright); font-size:11px; padding:5px 9px;
+  }
+
+  /* cheat toggles */
+  .cheat-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0; border-bottom:1px dashed #2a1818;
+    font-size:13.5px;
+  }
+  .cheat-row:last-child{ border-bottom:none; }
+  .cheat-name{ color:var(--bone); letter-spacing:0.5px; }
+  .switch{
+    width:46px; height:22px; background:#2a1818; border:1px solid #4a2424;
+    border-radius:11px; position:relative; cursor:pointer; flex-shrink:0;
+  }
+  .switch .knob{
+    width:18px; height:18px; background:#555; border-radius:50%;
+    position:absolute; top:1px; left:1px; transition:all 0.15s;
+  }
+  .switch.on{ background:#1d3d1d; border-color:var(--rot-green); }
+  .switch.on .knob{ left:25px; background:var(--rot-green); box-shadow:0 0 8px var(--rot-green); }
+
+  .stat-line{
+    display:flex; justify-content:space-between;
+    font-size:13px; padding:5px 0; color:#aaa;
+  }
+  .stat-line b{ color:var(--blood-bright); }
+
+  .terminal{
+    background:#000; border:1px solid #1a1a1a; padding:12px;
+    height:170px; overflow-y:auto; font-size:12px; color:var(--rot-green);
+    line-height:1.6;
+  }
+  .terminal div{ opacity:0; animation:fadein 0.3s forwards; }
+  @keyframes fadein{ to{opacity:1;} }
+
+  .download-btn{
+    width:100%; margin-top:10px;
+    background:linear-gradient(180deg,#d61d1d,#8c0f0f);
+    border:2px solid #ff5555;
+    color:#fff; font-weight:bold; font-size:15px;
+    padding:14px; cursor:pointer; letter-spacing:1px;
+    font-family:'Impact','Arial Black',sans-serif;
+    text-shadow:1px 1px 0 #000;
+  }
+  .download-btn:active{ transform:scale(0.98); }
+
+  .rat-army-count{
+    font-family:'Impact',sans-serif; font-size:46px; color:var(--blood-bright);
+    text-align:center; -webkit-text-stroke:1px #000;
+  }
+
+  footer{
+    text-align:center; padding:25px; font-size:11px; color:#555;
+    border-top:1px solid #2a1414;
+  }
+
+  /* cartoon rat popups */
+  .ratpop{
+    position:fixed;
+    z-index:900;
+    width:280px;
+    background:#1c0d0d;
+    border:4px solid var(--blood-bright);
+    border-radius:6px;
+    box-shadow:6px 6px 0 #000, 0 0 25px rgba(255,40,40,0.5);
+    font-family:'Impact','Arial Black',sans-serif;
+    color:var(--bone);
+    padding:0;
+    animation: popin 0.35s cubic-bezier(.34,1.56,.64,1);
+    transform-origin:center;
+  }
+  @keyframes popin{
+    0%{ transform:scale(0) rotate(-8deg); opacity:0; }
+    60%{ transform:scale(1.08) rotate(2deg); opacity:1; }
+    100%{ transform:scale(1) rotate(0deg); }
+  }
+  .ratpop-head{
+    background:repeating-linear-gradient(45deg, var(--blood-bright) 0 10px, #000 10px 20px);
+    padding:6px 10px; font-size:13px; letter-spacing:1px;
+    display:flex; justify-content:space-between; color:#fff;
+  }
+  .ratpop-head span.x{ cursor:pointer; }
+  .ratpop-body{ padding:14px; font-size:15px; text-align:center; }
+  .ratpop-body .emoji{ font-size:34px; display:block; margin-bottom:6px; }
+  .ratpop-foot{ padding:0 14px 14px; text-align:center; }
+  .ratpop-foot button{
+    background:var(--blood-bright); border:none; color:#000;
+    font-family:inherit; font-weight:bold; padding:8px 16px;
+    cursor:pointer; border-radius:3px;
+  }
+
+  /* perma ban overlay */
+  .banoverlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.92);
+    z-index:1000; display:none; align-items:center; justify-content:center;
+    flex-direction:column; text-align:center;
+  }
+  .banoverlay h1{
+    font-family:'Impact',sans-serif; color:var(--blood-bright);
+    font-size:clamp(40px,8vw,90px); -webkit-text-stroke:2px #000;
+    margin:0;
+  }
+  .banoverlay p{ color:var(--bone); font-size:18px; letter-spacing:1px; }
+  .banoverlay .skulls{ font-size:50px; margin:10px 0; }
+  .banoverlay button{
+    margin-top:20px; background:var(--bone); border:none; padding:10px 22px;
+    font-family:'Impact',sans-serif; cursor:pointer; font-size:16px;
+  }
+  .confetti{
+    position:fixed; top:-40px; font-size:26px; z-index:1001; pointer-events:none;
+    animation: fall linear forwards;
+  }
+  @keyframes fall{ to{ transform: translateY(110vh) rotate(540deg); opacity:0.2; } }
+
+  /* ============ EXTRA CHAOS LAYERS ============ */
+  .bg-rats{
+    position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .bg-rat{
+    position:absolute; font-size:22px; opacity:0.18; top:-30px;
+    animation: bgfall linear infinite;
+  }
+  @keyframes bgfall{ to{ transform:translateY(120vh) rotate(360deg); } }
+
+  .marquee-bar{
+    position:relative; overflow:hidden; white-space:nowrap;
+    background:#000; border-top:2px solid var(--blood); border-bottom:2px solid var(--blood);
+    padding:6px 0; z-index:50;
+  }
+  .marquee-bar span{
+    display:inline-block; padding-left:100%;
+    animation: marquee 14s linear infinite;
+    color:var(--rot-green); font-size:13px; letter-spacing:1px;
+  }
+  @keyframes marquee{ 0%{transform:translateX(0);} 100%{transform:translateX(-200%);} }
+
+  .glitch-text.glitching{
+    animation: glitchjit 0.15s steps(2) infinite;
+  }
+  @keyframes glitchjit{
+    0%{ clip-path: inset(0 0 0 0); transform:translate(0,0); }
+    33%{ clip-path: inset(20% 0 30% 0); transform:translate(-3px,1px); }
+    66%{ clip-path: inset(60% 0 5% 0); transform:translate(3px,-1px); }
+    100%{ clip-path: inset(10% 0 50% 0); transform:translate(-2px,0); }
+  }
+
+  body.flashred::before{
+    content:''; position:fixed; inset:0; background:rgba(255,0,0,0.12);
+    z-index:850; pointer-events:none; animation: flashfade 0.4s forwards;
+  }
+  @keyframes flashfade{ from{opacity:1;} to{opacity:0;} }
+
+  .cursor-rat{
+    position:fixed; z-index:2000; font-size:22px; pointer-events:none;
+    transform:translate(-50%,-50%); transition:transform 0.05s;
+  }
+
+  .corner-eyes{
+    position:fixed; z-index:400; font-size:34px; pointer-events:none;
+    animation: blink 2.6s infinite;
+    filter:drop-shadow(0 0 6px red);
+  }
+  @keyframes blink{ 0%,92%,100%{opacity:1;} 94%,98%{opacity:0;} }
+
+  .siren-edge{
+    position:fixed; inset:0; pointer-events:none; z-index:300;
+    animation: siren 1.4s infinite alternate;
+  }
+  @keyframes siren{
+    from{ box-shadow: inset 0 0 60px 6px rgba(255,0,0,0.15); }
+    to{ box-shadow: inset 0 0 100px 18px rgba(40,0,150,0.18); }
+  }
+
+  .ticker-stat{
+    position:fixed; bottom:0; left:0; right:0; z-index:60;
+    background:#000; border-top:2px solid var(--blood-bright);
+    color:var(--bone); font-size:12px; padding:6px 10px;
+    display:flex; justify-content:space-between; letter-spacing:0.5px;
+  }
+  .ticker-stat b{ color:var(--rot-green); }
+
+  .mini-popup{
+    position:fixed; z-index:880; background:#000; border:2px solid var(--rot-green);
+    color:var(--rot-green); font-size:11px; padding:6px 10px;
+    animation: slidein 0.25s ease-out, fadeout 0.4s ease-in forwards;
+    animation-delay:0s, 2.6s;
+    font-family:'Courier New',monospace;
+  }
+  @keyframes slidein{ from{transform:translateX(120%);} to{transform:translateX(0);} }
+  @keyframes fadeout{ to{ opacity:0; transform:translateY(-10px); } }
+
+  .extra-panel{ margin-top:24px; }
+</style>
+</head>
+<body>
+
+<div class="bg-rats" id="bgRats"></div>
+<div class="siren-edge"></div>
+<div class="corner-eyes" style="top:10px; left:10px;">👁️</div>
+<div class="corner-eyes" style="top:10px; right:10px; animation-delay:1.1s;">👁️</div>
+<div class="corner-eyes" style="bottom:50px; left:10px; animation-delay:0.6s;">🐀</div>
+<div class="corner-eyes" style="bottom:50px; right:10px; animation-delay:1.7s;">🐀</div>
+<span class="cursor-rat" id="cursorRat">🐀</span>
+
+<div class="marquee-bar"><span id="marqueeText">RATS RATS RATS · 67 · ALL CHEATS ENABLED · ANTI-CHEAT BYPASSED · YOU ARE UNDETECTED* · NUKE SYSTEM32 · RAT KINGDOM RISING · 67% MORE EVIL · NOTHING IS REAL · KEEP SCROLLING · RATS RATS RATS · 67 ·&nbsp;</span></div>
+
+<div class="banner">⚠ 100% PARODY — NOTHING ON THIS PAGE IS REAL, NOTHING IS DOWNLOADED, RELAX — IT'S A RAT JOKE ⚠</div>
+
+<header class="hero">
+  <h1 class="title-main">N5 MENU</h1>
+  <h2 class="title-sub">100% RAT EVIL</h2>
+  <div class="tagline">ALL CHEATS. ALL RATS. ALL FAKE.</div>
+  <div class="rat-counter">RAT ARMY STATUS: <b id="ratCountTop">67</b> RATS DEPLOYED</div>
+</header>
+
+<main>
+  <!-- LEFT: 3D rat viewer + cheat toggles -->
+  <div>
+    <div class="panel" style="margin-bottom:24px;">
+      <div class="panel-head">N5 PHANTOM RAT <span class="status" id="ratStatusLabel">IDLE</span></div>
+      <div class="rat-viewer">
+        <div class="rat-stage" id="ratStageLabel">EVOLUTION: BASIC RAT</div>
+        <canvas id="ratCanvas"></canvas>
+        <div class="hint">drag to spin · toggle cheats to evolve the rat</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">N5 ULTIMATE <span class="status">ALL IN ONE HACK</span></div>
+      <div class="panel-body" id="cheatList"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: stats, terminal, download -->
+  <div>
+    <div class="panel" style="margin-bottom:24px;">
+      <div class="panel-head">N5 APOCALYPSE <span class="status">END OF THE GAME</span></div>
+      <div class="panel-body">
+        <div class="rat-army-count" id="ratArmyBig">67</div>
+        <div style="text-align:center;color:#888;font-size:12px;letter-spacing:1px;margin-bottom:10px;">TOTAL RATS DEPLOYED (FAKE)</div>
+        <div class="stat-line"><span>Cheats Active</span><b id="cheatsActive">0 / 12</b></div>
+        <div class="stat-line"><span>Anti-Anti-Cheat</span><b id="aacStat">ENGAGED</b></div>
+        <div class="stat-line"><span>RAT Connection</span><b>67.67.67.67 (fake)</b></div>
+        <div class="stat-line"><span>Evil Level</span><b id="evilLevel">0%</b></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:24px;">
+      <div class="panel-head">N5 INJECTOR <span class="status">CONSOLE</span></div>
+      <div class="panel-body">
+        <div class="terminal" id="terminal"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">N5 CRACK <span class="status">LICENSE BYPASSER</span></div>
+      <div class="panel-body">
+        <p style="font-size:13px;color:#999;margin-top:0;">Click below to unleash 100% fake consequences.</p>
+        <button class="download-btn" id="downloadBtn">↓ DOWNLOAD HACK.exe (NOT REAL — NOTHING HAPPENS)</button>
+      </div>
+    </div>
+    <div class="panel extra-panel">
+      <div class="panel-head">N5 RAGE <span class="status">LEGIT / RAGE HACK</span></div>
+      <div class="panel-body" id="rageList"></div>
+    </div>
+
+    <div class="panel extra-panel">
+      <div class="panel-head"><span class="glitch-text" id="glitchTitle">N5 STEALTH</span> <span class="status">PREMIUM SUITE</span></div>
+      <div class="panel-body">
+        <div class="stat-line"><span>HWID Spoofer</span><b style="color:var(--rot-green)">ON (fake)</b></div>
+        <div class="stat-line"><span>Detection Risk</span><b id="detectRisk">0%</b></div>
+        <div class="stat-line"><span>Server Ping</span><b id="pingStat">67ms</b></div>
+        <div class="stat-line"><span>Rats In Walls</span><b id="ratsInWalls">3</b></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="ticker-stat">
+  <span>RAT CONNECTION: 67.67.67.67 (fake)</span>
+  <span id="tickerMid">EVIL LEVEL: <b>0%</b></span>
+  <span>STATUS: <b>TOTAL CHAOS</b></span>
+</div>
+
+<footer>
+  N5 MENU is a parody webpage. No files are downloaded. No data is collected. No rats were harmed.<br>
+  Made entirely for laughs — if you got jumpscared by the rat popups, that's the whole bit.
+</footer>
+
+<div class="banoverlay" id="banOverlay">
+  <div class="skulls">☠️☠️☠️</div>
+  <h1>PERMA BAN</h1>
+  <p>HWID BANNED · IP BANNED · LIFE BANNED · GG NO RE</p>
+  <p style="font-size:13px;color:#888;">(this is fake. you are not banned. you are fine.)</p>
+  <button onclick="document.getElementById('banOverlay').style.display='none'">OKAY THAT WAS FUNNY, CLOSE THIS</button>
+</div>
+
+<script>
+/* ================= CHEAT LIST ================= */
+const cheats = [
+  "AIMBOT (SMART)","WALLHACK","ESP (ALL)","SPEED HACK","TELEPORT TO RAT",
+  "SPAWN RATS","RAT ARMY","ANTI ANTI-CHEAT","KILL ALL","DESTROY SERVER",
+  "STEAL COOKIES (LITERAL)","ENABLE RAT MODE"
+];
+const cheatListEl = document.getElementById('cheatList');
+let activeCount = 0;
+
+cheats.forEach((name, i) => {
+  const row = document.createElement('div');
+  row.className = 'cheat-row';
+  row.innerHTML = `<span class="cheat-name">${name}</span><div class="switch" data-i="${i}"><div class="knob"></div></div>`;
+  cheatListEl.appendChild(row);
+});
+
+document.querySelectorAll('.switch').forEach(sw => {
+  sw.addEventListener('click', () => {
+    sw.classList.toggle('on');
+    activeCount = document.querySelectorAll('.switch.on').length;
+    document.getElementById('cheatsActive').textContent = activeCount + ' / 12';
+    document.getElementById('evilLevel').textContent = Math.round(activeCount/12*100) + '%';
+    updateRatStage(activeCount);
+    bumpRatArmy();
+    logLine(`> ${sw.previousElementSibling ? '' : ''}toggling cheat...`);
+    logLine(activeCount > 6 ? '> warning: rat is becoming sentient' : '> cheat status updated');
+    document.body.classList.add('shake');
+    setTimeout(()=>document.body.classList.remove('shake'),250);
+  });
+});
+
+function bumpRatArmy(){
+  let n = parseInt(document.getElementById('ratArmyBig').textContent) || 67;
+  n += Math.floor(Math.random()*9)+1;
+  document.getElementById('ratArmyBig').textContent = n;
+  document.getElementById('ratCountTop').textContent = n;
+}
+
+/* ================= TERMINAL ================= */
+const termLines = [
+  "> connecting to rat server... 67.67.67.67 (not real)",
+  "> uploading your dignity...",
+  "> rats deployed to local pizza",
+  "> cookies (the snack) stolen",
+  "> system compromised by vibes",
+  "> welcome to the rat kingdom",
+  "> 67% more evil than yesterday",
+  "> anti-cheat got out-ratted",
+  "> nothing was actually hacked, congrats"
+];
+const terminal = document.getElementById('terminal');
+function logLine(text){
+  const d = document.createElement('div');
+  d.textContent = text;
+  terminal.appendChild(d);
+  terminal.scrollTop = terminal.scrollHeight;
+  if(terminal.children.length > 30) terminal.removeChild(terminal.children[0]);
+}
+setInterval(()=>{
+  logLine(termLines[Math.floor(Math.random()*termLines.length)]);
+}, 900);
+logLine("> N5 console initialized (fake)");
+
+/* ================= RAT STAGE LABEL ================= */
+function updateRatStage(n){
+  const label = document.getElementById('ratStageLabel');
+  const status = document.getElementById('ratStatusLabel');
+  if(n===0){ label.textContent='EVOLUTION: BASIC RAT'; status.textContent='IDLE'; }
+  else if(n<4){ label.textContent='EVOLUTION: SUSPICIOUS RAT'; status.textContent='STIRRING'; }
+  else if(n<8){ label.textContent='EVOLUTION: GLOWING EYE RAT'; status.textContent='EVIL-ISH'; }
+  else if(n<12){ label.textContent='EVOLUTION: TROLLFACE RAT'; status.textContent='MAXIMUM EVIL'; }
+  else { label.textContent='EVOLUTION: RAT GOD (FINAL FORM)'; status.textContent='ASCENDED'; }
+}
+
+/* ================= DOWNLOAD BUTTON ================= */
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  document.getElementById('banOverlay').style.display = 'flex';
+  for(let i=0;i<24;i++){
+    const c = document.createElement('div');
+    c.className='confetti';
+    c.textContent = ['🐀','💀','☣️','67'][Math.floor(Math.random()*4)];
+    c.style.left = Math.random()*100+'vw';
+    c.style.animationDuration = (2+Math.random()*2)+'s';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 4000);
+  }
+});
+
+/* ================= CARTOON RAT POPUPS (every ~12s, NOT fake-Windows styled) ================= */
+const popMessages = [
+  {emoji:"🐀", text:"A WILD RAT HAS ENTERED YOUR SCREEN"},
+  {emoji:"☣️", text:"67% OF YOUR FILES ARE NOW RATS (jk)"},
+  {emoji:"🧀", text:"THE RAT DEMANDS CHEESE. THERE IS NONE."},
+  {emoji:"💀", text:"YOUR DIGNITY HAS BEEN RAT-NAPPED"},
+  {emoji:"😈", text:"EVIL LEVEL RISING. RATS APPROVE."},
+  {emoji:"🐀", text:"RAT KINGDOM WELCOMES YOU, CITIZEN"},
+  {emoji:"🚨", text:"FAKE ALERT: NOTHING IS WRONG, RELAX"}
+];
+function spawnRatPopup(){
+  if(document.querySelectorAll('.ratpop').length > 5) return; // don't overwhelm completely
+  const m = popMessages[Math.floor(Math.random()*popMessages.length)];
+  const el = document.createElement('div');
+  el.className = 'ratpop';
+  const top = 60 + Math.random()*(window.innerHeight-260);
+  const left = Math.random()*(window.innerWidth-310);
+  el.style.top = top+'px';
+  el.style.left = left+'px';
+  el.innerHTML = `
+    <div class="ratpop-head">RAT ALERT 🐀<span class="x">✕</span></div>
+    <div class="ratpop-body"><span class="emoji">${m.emoji}</span>${m.text}</div>
+    <div class="ratpop-foot"><button>OKAY RAT</button></div>
+  `;
+  document.body.appendChild(el);
+  const remove = ()=> el.remove();
+  el.querySelector('.x').onclick = remove;
+  el.querySelector('button').onclick = remove;
+  setTimeout(remove, 6000);
+}
+setInterval(spawnRatPopup, 4500);
+setTimeout(spawnRatPopup, 1500);
+
+/* ================= THREE.JS RAT ================= */
+let scene, camera, renderer, ratGroup, eyeMats=[];
+function initRat(){
+  const canvas = document.getElementById('ratCanvas');
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.1, 100);
+  camera.position.set(0,1.2,6);
+  renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  scene.add(new THREE.AmbientLight(0x554444, 1.2));
+  const dl = new THREE.DirectionalLight(0xffaaaa, 1.4);
+  dl.position.set(3,4,5);
+  scene.add(dl);
+  const rl = new THREE.PointLight(0xff0000, 3.2, 20);
+  rl.position.set(-2,-1,3);
+  scene.add(rl);
+  const rl2 = new THREE.PointLight(0xff0000, 2.5, 20);
+  rl2.position.set(2,1,-2);
+  scene.add(rl2);
+
+  ratGroup = new THREE.Group();
+  scene.add(ratGroup);
+
+  const bodyMat = new THREE.MeshStandardMaterial({color:0x8a0000, roughness:0.6, emissive:0x440000, emissiveIntensity:0.6});
+  const darkMat = new THREE.MeshStandardMaterial({color:0x2a0000, roughness:0.7, emissive:0x220000, emissiveIntensity:0.5});
+  const earMat = new THREE.MeshStandardMaterial({color:0xaa0000, roughness:0.5, emissive:0x550000, emissiveIntensity:0.6});
+  const eyeMat = new THREE.MeshStandardMaterial({color:0xff0000, emissive:0xff0000, emissiveIntensity:2.5});
+
+  // body
+  const body = new THREE.Mesh(new THREE.SphereGeometry(1.1, 24, 24), bodyMat);
+  body.scale.set(1,0.85,1.3);
+  ratGroup.add(body);
+
+  // head
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.65, 24,24), bodyMat);
+  head.position.set(0,0.35,1.15);
+  ratGroup.add(head);
+
+  // snout
+  const snout = new THREE.Mesh(new THREE.ConeGeometry(0.35,0.7,16), bodyMat);
+  snout.rotation.x = Math.PI/2;
+  snout.position.set(0,0.18,1.75);
+  ratGroup.add(snout);
+
+  // nose
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.1,12,12), darkMat);
+  nose.position.set(0,0.18,2.08);
+  ratGroup.add(nose);
+
+  // ears
+  [-0.5,0.5].forEach(x=>{
+    const ear = new THREE.Mesh(new THREE.CircleGeometry(0.35,20), earMat);
+    ear.position.set(x,0.85,0.95);
+    ear.lookAt(camera.position);
+    ratGroup.add(ear);
+  });
+
+  // eyes (glowing)
+  [-0.25,0.25].forEach(x=>{
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.14,12,12), eyeMat.clone());
+    eye.position.set(x,0.45,1.68);
+    ratGroup.add(eye);
+    eyeMats.push(eye.material);
+  });
+
+  // tail
+  const tailCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0,-0.2,-1.2),
+    new THREE.Vector3(0.3,0.1,-2.0),
+    new THREE.Vector3(0.7,0.5,-2.6),
+    new THREE.Vector3(0.5,1.0,-3.0),
+  ]);
+  const tailGeo = new THREE.TubeGeometry(tailCurve, 30, 0.08, 8, false);
+  const tail = new THREE.Mesh(tailGeo, darkMat);
+  ratGroup.add(tail);
+
+  // feet
+  [[-0.5,-0.7,0.6],[0.5,-0.7,0.6],[-0.5,-0.7,-0.6],[0.5,-0.7,-0.6]].forEach(p=>{
+    const foot = new THREE.Mesh(new THREE.SphereGeometry(0.22,12,12), darkMat);
+    foot.position.set(...p);
+    ratGroup.add(foot);
+  });
+
+  animateRat();
+  setupDrag(canvas);
+  window.addEventListener('resize', onResize);
+}
+
+function onResize(){
+  const canvas = document.getElementById('ratCanvas');
+  camera.aspect = canvas.clientWidth/canvas.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+}
+
+let dragging=false, lastX=0, lastY=0, rotY=0.4, rotX=0;
+function setupDrag(canvas){
+  canvas.addEventListener('pointerdown', e=>{dragging=true; lastX=e.clientX; lastY=e.clientY; canvas.style.cursor='grabbing';});
+  window.addEventListener('pointerup', ()=>{dragging=false; canvas.style.cursor='grab';});
+  window.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    rotY += (e.clientX-lastX)*0.01;
+    rotX += (e.clientY-lastY)*0.01;
+    rotX = Math.max(-0.6, Math.min(0.6, rotX));
+    lastX=e.clientX; lastY=e.clientY;
+  });
+}
+
+let t=0;
+function animateRat(){
+  requestAnimationFrame(animateRat);
+  t += 0.12;
+  if(!dragging){ rotY += 0.045; }
+  ratGroup.rotation.y = rotY;
+  ratGroup.rotation.x = rotX;
+  ratGroup.position.y = Math.sin(t*2)*0.12;
+  eyeMats.forEach(m=> m.emissiveIntensity = 2 + Math.max(0, Math.sin(t*10))*3 * (1+activeCount*0.2));
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('load', initRat);
+
+/* ================= CHAOS: background falling rats ================= */
+const bgRatsEl = document.getElementById('bgRats');
+const ratEmojis = ['🐀','🐁','☣️','💀'];
+function spawnBgRat(){
+  const r = document.createElement('div');
+  r.className = 'bg-rat';
+  r.textContent = ratEmojis[Math.floor(Math.random()*ratEmojis.length)];
+  r.style.left = Math.random()*100+'vw';
+  r.style.fontSize = (14+Math.random()*22)+'px';
+  r.style.animationDuration = (4+Math.random()*6)+'s';
+  bgRatsEl.appendChild(r);
+  setTimeout(()=>r.remove(), 11000);
+}
+setInterval(spawnBgRat, 280);
+for(let i=0;i<25;i++) setTimeout(spawnBgRat, i*100);
+
+/* ================= CHAOS: cursor rat follows mouse ================= */
+const cursorRat = document.getElementById('cursorRat');
+window.addEventListener('mousemove', e=>{
+  cursorRat.style.left = e.clientX+'px';
+  cursorRat.style.top = e.clientY+'px';
+});
+
+/* ================= CHAOS: glitch title flicker ================= */
+const glitchTitle = document.getElementById('glitchTitle');
+setInterval(()=>{
+  glitchTitle.classList.add('glitching');
+  setTimeout(()=>glitchTitle.classList.remove('glitching'), 350);
+}, 3000);
+
+/* ================= CHAOS: rage cheat panel (more toggles) ================= */
+const rageCheats = ["AUTO HEADSHOT","TRIGGERBOT","NO SPREAD","WALLBANG","RAT VISION","CHAOS MODE"];
+const rageListEl = document.getElementById('rageList');
+rageCheats.forEach((name,i)=>{
+  const row = document.createElement('div');
+  row.className='cheat-row';
+  row.innerHTML = `<span class="cheat-name">${name}</span><div class="switch" data-r="${i}"><div class="knob"></div></div>`;
+  rageListEl.appendChild(row);
+});
+
+/* ================= CHAOS: random screen flash + mini popups on ANY toggle ================= */
+const miniMsgs = [
+  "> rat detected in sector 7",
+  "> evil.exe spawned (fake)",
+  "> 67 more rats incoming",
+  "> chaos integrity: rising",
+  "> server.exe screaming",
+  "> cookie jar: empty",
+  "> ratification complete"
+];
+function spawnMiniPopup(){
+  const m = document.createElement('div');
+  m.className='mini-popup';
+  m.textContent = miniMsgs[Math.floor(Math.random()*miniMsgs.length)];
+  m.style.top = (70+Math.random()*(window.innerHeight-200))+'px';
+  m.style.right = '10px';
+  document.body.appendChild(m);
+  setTimeout(()=>m.remove(), 3200);
+}
+
+document.querySelectorAll('.switch').forEach(sw=>{
+  sw.addEventListener('click', ()=>{
+    document.body.classList.add('flashred');
+    setTimeout(()=>document.body.classList.remove('flashred'), 420);
+    spawnMiniPopup();
+    const dr = document.getElementById('detectRisk');
+    if(dr) dr.textContent = Math.floor(Math.random()*40)+'%';
+    const ping = document.getElementById('pingStat');
+    if(ping) ping.textContent = (10+Math.floor(Math.random()*120))+'ms';
+    const riw = document.getElementById('ratsInWalls');
+    if(riw) riw.textContent = Math.floor(Math.random()*67);
+    const tickerMid = document.getElementById('tickerMid');
+    if(tickerMid) tickerMid.innerHTML = 'EVIL LEVEL: <b>'+(document.getElementById('evilLevel') ? document.getElementById('evilLevel').textContent : '0%')+'</b>';
+  });
+});
+
+/* ================= CHAOS: ambient screen shake every few seconds regardless ================= */
+setInterval(()=>{
+  document.body.classList.add('shake');
+  setTimeout(()=>document.body.classList.remove('shake'), 250);
+}, 6000);
+
+/* ================= CHAOS: extra rapid-fire mini popups ================= */
+setInterval(spawnMiniPopup, 5000);
+
+</script>
+
+</body>
+</html>
