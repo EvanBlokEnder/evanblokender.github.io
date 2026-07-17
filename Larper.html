@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Frida Map to symbols.txt Converter</title>
+<style>
+body {
+    background:#101010;
+    color:#eee;
+    font-family:Arial,sans-serif;
+    padding:30px;
+}
+.box {
+    max-width:900px;
+    margin:auto;
+    background:#1b1b1b;
+    padding:25px;
+    border-radius:12px;
+}
+button {
+    padding:12px 18px;
+    margin:10px 5px 10px 0;
+    border:0;
+    border-radius:6px;
+    cursor:pointer;
+}
+#convert { background:#2563eb; color:white; }
+#download { background:#16a34a; color:white; }
+textarea {
+    width:100%;
+    height:450px;
+    background:#050505;
+    color:#00ff66;
+    font-family:monospace;
+    padding:15px;
+}
+</style>
+</head>
+
+<body>
+<div class="box">
+<h1>Frida Map → symbols.txt</h1>
+
+<p>
+Converts:
+</p>
+
+<pre>
+il2cpp_init: () => Il2Cpp.module.findExportByName("xCDPJp_mzeS"),
+</pre>
+
+<p>
+Into:
+</p>
+
+<pre>
+il2cpp_init=xCDPJp_mzeS
+</pre>
+
+<input id="file" type="file" accept=".js,.txt">
+<br>
+
+<button id="convert" onclick="convert()">Convert</button>
+<button id="download" onclick="downloadFile()">Download symbols.txt</button>
+
+<p id="status"></p>
+
+<textarea id="output" placeholder="symbols.txt output"></textarea>
+
+<script>
+let result = "";
+
+function convert() {
+    const file = document.getElementById("file").files[0];
+
+    if (!file) {
+        alert("Select a Frida map first.");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function() {
+        const text = reader.result;
+
+        /*
+          Matches the exact Frida format:
+          il2cpp_name: () => Il2Cpp.module.findExportByName("ExportName"),
+        */
+
+        const regex =
+        /(il2cpp_[A-Za-z0-9_]+)\s*:\s*\(\)\s*=>\s*Il2Cpp\.module\.findExportByName\("([^"]+)"\)/g;
+
+        let output = [];
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+            output.push(match[1] + "=" + match[2]);
+        }
+
+        result = output.join("\n");
+
+        document.getElementById("output").value = result;
+        document.getElementById("status").innerText =
+            "Converted " + output.length + " symbols.";
+    };
+
+    reader.readAsText(file);
+}
+
+function downloadFile() {
+    if (!result) {
+        alert("Convert a file first.");
+        return;
+    }
+
+    const blob = new Blob([result], {
+        type:"text/plain"
+    });
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "symbols.txt";
+    a.click();
+
+    URL.revokeObjectURL(a.href);
+}
+</script>
+
+</div>
+</body>
+</html>
