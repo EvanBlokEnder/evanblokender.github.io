@@ -1,0 +1,127 @@
+Terms of Service for AC AUTO Terms of Service for [Your Bot Name]
+Last Updated: 4/17/2026
+
+Introduction
+Welcome to AC AUTO SYMBOLS, a Discord bot operated by Evans sigma larpers. By inviting, using, or interacting with the Bot, you (“user,” “you,” or “your”) agree to these Terms of Service (“Terms”).
+
+If you do not agree to these Terms, do not use or interact with the Bot.
+
+---
+
+Eligibility
+You must comply with:
+Discord’s Terms of Service
+Discord’s Community Guidelines
+
+Use of the Bot is only permitted if you are legally allowed to use Discord in your jurisdiction.
+
+---
+
+Use of the Bot
+You are solely responsible for how you use the Bot.
+You agree not to use the Bot in ways that violate laws, Discord’s rules, or these Terms.
+You may not attempt to exploit, copy, or otherwise interfere with the Bot’s functionality.
+Slash commands and other features of the Bot are provided “as is” and may be changed, limited, or removed at any time.
+
+---
+
+Data Collection and Privacy
+The Bot may collect and process certain data necessary for its operation (for example, user IDs, message content related to slash command inputs, or server IDs).
+
+We will:
+Only collect data necessary for functionality.
+Not sell or share data with third parties.
+Delete data upon request or when it’s no longer needed.
+
+For more details, see our [Privacy Policy] if you have one.
+
+---
+
+Availability and Updates
+We may update, suspend, or discontinue the Bot at any time without notice. We are not liable for downtime, feature changes, or data loss due to maintenance or outages.
+
+---
+
+Limitation of Liability
+The Bot is provided “as is” without warranties of any kind. We are not liable for any damages, losses, or issues resulting from your use of the Bot.
+
+You use the Bot at your own risk.
+
+---
+
+Termination
+We reserve the right to:
+Ban or restrict users from using the Bot,
+Remove the Bot from a server, or
+Terminate access to certain features
+for any reason, at our discretion.
+
+---
+
+Changes to These Terms
+We may revise these Terms from time to time. Continued use of the Bot after updates means you accept the revised Terms.
+
+We recommend checking this page regularly.
+Last Updated: [Date]
+
+Introduction
+Welcome to [Your Bot Name] (the “Bot”), a Discord bot operated by [Your Name or Organization Name] (“we,” “us,” or “our”). By inviting, using, or interacting with the Bot, you (“user,” “you,” or “your”) agree to these Terms of Service (“Terms”).
+
+If you do not agree to these Terms, do not use or interact with the Bot.
+
+---
+
+Eligibility
+You must comply with:
+Discord’s Terms of Service
+Discord’s Community Guidelines
+
+Use of the Bot is only permitted if you are legally allowed to use Discord in your jurisdiction.
+
+---
+
+Use of the Bot
+You are solely responsible for how you use the Bot.
+You agree not to use the Bot in ways that violate laws, Discord’s rules, or these Terms.
+You may not attempt to exploit, copy, or otherwise interfere with the Bot’s functionality.
+Slash commands and other features of the Bot are provided “as is” and may be changed, limited, or removed at any time.
+
+---
+
+Data Collection and Privacy
+The Bot may collect and process certain data necessary for its operation (for example, user IDs, message content related to slash command inputs, or server IDs).
+
+We will:
+Only collect data necessary for functionality.
+Not sell or share data with third parties.
+Delete data upon request or when it’s no longer needed.
+
+For more details, see our [Privacy Policy] if you have one.
+
+---
+
+Availability and Updates
+We may update, suspend, or discontinue the Bot at any time without notice. We are not liable for downtime, feature changes, or data loss due to maintenance or outages.
+
+---
+
+Limitation of Liability
+The Bot is provided “as is” without warranties of any kind. We are not liable for any damages, losses, or issues resulting from your use of the Bot.
+
+You use the Bot at your own risk.
+
+---
+
+Termination
+We reserve the right to:
+Ban or restrict users from using the Bot,
+Remove the Bot from a server, or
+Terminate access to certain features
+for any reason, at our discretion.
+
+---
+
+Changes to These Terms
+We may revise these Terms from time to time. Continued use of the Bot after updates means you accept the revised Terms.
+
+We recommend checking this page regularly.
